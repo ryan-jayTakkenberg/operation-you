@@ -16,10 +16,12 @@ let S = JSON.parse(localStorage.getItem('75h6')||'null') || {
   startDate:null,  // YYYY-MM-DD
   checks:{}, fails:[], restarts:0, entries:[], whoop:{}, milestones:{},
   casinoMode:{ enabled:true, days:[5,6] },
-  dayInsight:{}
+  dayInsight:{},
+  quickLogs:[]
 };
 if(!S.casinoMode) S.casinoMode = { enabled:true, days:[5,6] };
 if(!S.dayInsight) S.dayInsight = {};
+if(!S.quickLogs) S.quickLogs = [];
 function save(){
   localStorage.setItem('75h6',JSON.stringify(S));
   API.syncState(S);  // sync to server in background (noop if offline/not logged in)

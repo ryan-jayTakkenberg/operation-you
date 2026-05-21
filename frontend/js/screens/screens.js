@@ -47,6 +47,8 @@ function go(p){
   if(p==='me'){renderStats();renderMeScreen();}
   if(p==='plan'){renderJourney();renderPlanScreen();}
   if(p==='coach'){renderChat();setTimeout(()=>{const i=document.getElementById('chat-input');if(i)i.focus();},100);}
+  const fabEl=document.getElementById('fab-btn');
+  if(fabEl)fabEl.classList.toggle('fab-hidden',p!=='today'&&p!=='coach');
 }
 
 let confirmCallback=null;
@@ -74,7 +76,7 @@ function failDay(){
 function resetAll(){
   showConfirm('Challenge resetten','Checks, entries, Whoop data, milestones — alles weg. Je wetten en profiel blijven staan.',
     ()=>{
-      S.checks={};S.fails=[];S.restarts=0;S.entries=[];S.whoop={};S.milestones={};S.dayQuotes={};S.dayInsight={};
+      S.checks={};S.fails=[];S.restarts=0;S.entries=[];S.whoop={};S.milestones={};S.dayQuotes={};S.dayInsight={};S.quickLogs=[];
       S.startDate=today();
       save();renderAll();closeDetail();
     });

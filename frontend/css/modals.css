@@ -226,3 +226,19 @@ textarea::placeholder{color:var(--dim)}
 .ak-help a{color:var(--ac)}
 .ak-dot.ok{background:var(--green);box-shadow:0 0 6px rgba(94,227,165,0.4)}
 .ak-dot.miss{background:var(--dim)}
+
+/* FAB */
+.fab{position:fixed;right:20px;bottom:calc(80px + var(--safe-bot) + 16px);width:52px;height:52px;background:var(--ac);color:#fff;border:none;border-radius:50%;font-size:20px;font-weight:700;cursor:pointer;z-index:300;display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 4px 20px rgba(168,58,42,0.35)}
+.fab:active{transform:scale(0.9)}
+.fab.fab-hidden{display:none}
+
+/* QUICKLOG SHEET */
+.quicklog-sheet{max-height:44vh;padding:20px 20px calc(16px + var(--safe-bot))}
+.qlog-title{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+.qlog-types{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qlog-type-btn{padding:18px 12px;background:var(--bg3);border:1px solid var(--line);border-radius:14px;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;line-height:1.4}
+.qlog-type-btn:active{background:var(--ac-dim);border-color:var(--ac)}
+.qlog-input-label{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.qlog-textarea{width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font-family:var(--mono);font-size:14px;resize:none;box-sizing:border-box;line-height:1.5}
+.qlog-save-btn{width:100%;margin-top:12px}
+.qlog-back{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);background:none;border:none;cursor:pointer;padding:0 0 14px 0;text-transform:uppercase;display:block}
