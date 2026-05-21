@@ -139,6 +139,96 @@ Schrijf 1-2 zinnen, direct 'je'. Geen "vandaag is dag X". Geen aanhalingstekens.
 
 function refreshQuote(){loadDayQuote(true);}
 
+// Daily insight — Claude analyzes last 7 days of check + mood data, cached per day
+async function loadDayInsight(force=false){
+  const el=document.getElementById('day-insight');
+  const btn=document.getElementById('di-refresh-btn');
+  if(!el)return;
+  if(!S.dayInsight)S.dayInsight={};
+  const td=today();
+
+  if(!force&&S.dayInsight[td]){
+    el.classList.remove('di-loading');
+    el.textContent=S.dayInsight[td].text||S.dayInsight[td];
+    return;
+  }
+  if(!S.identity||!S.profile){
+    const card=document.getElementById('insight-card');
+    if(card)card.style.display='none';
+    return;
+  }
+
+  el.classList.add('di-loading');
+  el.textContent='Analyse laden…';
+  if(btn){btn.classList.add('spinning');btn.disabled=true;}
+
+  const rs=rules();
+  const n=dayNum();
+
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();
+    d.setDate(d.getDate()-i);
+    const dt=localDate(d);
+    const chk=S.checks[dt]||{};
+    const mood=S.mood&&S.mood[dt];
+    const done=rs.filter(r=>chk[r.id]).length;
+    const pct=rs.length?Math.round(done/rs.length*100):0;
+    const secs={};
+    SECTION_ORDER.forEach(sec=>{
+      const sr=rs.filter(r=>r.section===sec);
+      const sd=sr.filter(r=>chk[r.id]).length;
+      secs[sec]=sr.length?Math.round(sd/sr.length*100):null;
+    });
+    days.push({dt,pct,mood,secs});
+  }
+
+  const missCount={};
+  days.forEach(({dt})=>{
+    const chk=S.checks[dt]||{};
+    rs.forEach(r=>{if(!chk[r.id])missCount[r.id]=(missCount[r.id]||0)+1;});
+  });
+  const topMissed=rs.filter(r=>(missCount[r.id]||0)>=4)
+    .sort((a,b)=>(missCount[b.id]||0)-(missCount[a.id]||0))
+    .slice(0,3);
+
+  const dataStr=days.map(d=>`${d.dt}: ${d.pct}% totaal, energie=${d.mood||'?'}/5, ochtend=${d.secs.ochtend??'?'}%, avond=${d.secs.avond??'?'}%`).join('\n');
+  const missedStr=topMissed.length
+    ?topMissed.map(r=>`"${r.name}" (${missCount[r.id]}x gemist)`).join(', ')
+    :'geen consistent patroon';
+
+  const prompt=`Je bent de coach van ${S.profile.name}. Dag ${n} van 75.
+
+DATA LAATSTE 7 DAGEN:
+${dataStr}
+
+CONSISTENT GEMISTE REGELS (4+ van 7 dagen):
+${missedStr}
+
+ZWAKTES: ${S.profile.weak||''}
+SCHADUW: ${S.identity.shadow||''}
+
+Schrijf 1-2 zinnen: een scherpe data-gedreven observatie of concrete opdracht. Direct, eerlijk, specifiek. Verwijs naar de data. Geen "je kunt het!". Geen aanhaling. Geen markdown. Nederlands.`;
+
+  try{
+    const data=await claudeCall([{role:'user',content:prompt}],{maxTokens:200});
+    const txt=(data.content?.[0]?.text||'').trim().replace(/^["']|["']$/g,'');
+    S.dayInsight[td]={text:txt,ts:Date.now()};
+    save();
+    el.classList.remove('di-loading');
+    el.textContent=txt;
+  }catch(e){
+    el.classList.remove('di-loading');
+    el.textContent='';
+    const card=document.getElementById('insight-card');
+    if(card)card.style.display='none';
+  }finally{
+    if(btn){btn.classList.remove('spinning');btn.disabled=false;}
+  }
+}
+
+function refreshInsight(){loadDayInsight(true);}
+
 // ═══════════════════════════════
 // HERO CARD
 // ═══════════════════════════════

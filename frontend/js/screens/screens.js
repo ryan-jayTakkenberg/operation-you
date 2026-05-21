@@ -74,7 +74,7 @@ function failDay(){
 function resetAll(){
   showConfirm('Challenge resetten','Checks, entries, Whoop data, milestones — alles weg. Je wetten en profiel blijven staan.',
     ()=>{
-      S.checks={};S.fails=[];S.restarts=0;S.entries=[];S.whoop={};S.milestones={};S.dayQuotes={};
+      S.checks={};S.fails=[];S.restarts=0;S.entries=[];S.whoop={};S.milestones={};S.dayQuotes={};S.dayInsight={};
       S.startDate=today();
       save();renderAll();closeDetail();
     });
@@ -87,6 +87,7 @@ function bootApp(){
     hideOnboarding();
     renderAll();
     setTimeout(loadDayQuote,300);
+    setTimeout(loadDayInsight,600);
     startNotifScheduler();
   } else {
     showOnboarding();

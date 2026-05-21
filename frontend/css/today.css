@@ -118,5 +118,14 @@
 .casino-day-btn{padding:8px 14px;background:var(--bg3);border:1px solid var(--line2);border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
 .casino-day-btn.on{background:var(--ac-dim);border-color:var(--ac);color:var(--ac)}
 
+/* INSIGHT CARD */
+.day-insight-card{margin:0 16px 12px;padding:16px 18px;background:var(--bg2);border-radius:20px;border:1px solid var(--line);border-left:3px solid var(--blue)}
+.di-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.di-lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.22em;color:var(--blue);text-transform:uppercase}
+.di-refresh{border-color:rgba(43,77,114,0.3)}
+.di-refresh.spinning{color:var(--blue);border-color:rgba(43,77,114,0.5)}
+.di-txt{font-size:14px;line-height:1.5;color:var(--text);margin-top:4px}
+.di-loading{color:var(--muted);font-style:italic}
+
 /* pulse animation */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
