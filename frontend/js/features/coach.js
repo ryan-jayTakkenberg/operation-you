@@ -47,6 +47,7 @@ VANDAAG — DAG ${n} VAN 75:
 - Wetten gehaald: ${done}/${rs.length}
 - Gehaald: ${okRules.join(', ') || 'nog niets'}
 - Nog te doen: ${missRules.join(', ') || 'alles klaar 🔥'}
+${isCasinoDay()?'- Casino-nacht: avondregels tellen niet mee (werk 20:00–05:15)':''}
 ${w.rec!==undefined ? `- Whoop: recovery ${w.rec}%, slaap ${w.slp||'?'}u, strain ${w.str||'?'}/21` : ''}
 
 VOORTGANG TOTAAL:

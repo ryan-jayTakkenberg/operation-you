@@ -205,6 +205,7 @@
       <div class="dq-txt dq-loading" id="day-quote">Laden…</div>
       <div class="dq-signature" id="dq-signature"></div>
     </div>
+    <div id="casino-banner-wrap"></div>
     <div id="rlist"></div>
     <div class="fail-wrap">
       <button class="fail-btn" onclick="failDay()">Dag mislukt — terug naar dag 1</button>
@@ -383,6 +384,11 @@
         <div class="s-body"><div class="s-name">API key</div><div class="s-desc" id="settings-api-desc">Voor gebruik buiten Claude.ai</div></div>
         <div class="s-chev">›</div>
       </div>
+      <div class="s-item" onclick="openSubpage('casino')">
+        <div class="s-icon">🎰</div>
+        <div class="s-body"><div class="s-name">Casino-modus</div><div class="s-desc">Avondregels vrijstelling op werknachten</div></div>
+        <div class="s-chev">›</div>
+      </div>
     </div>
 
     <div class="s-group">Account</div>
@@ -469,6 +475,15 @@
     <div class="sub-action"></div>
   </div>
   <div class="sub-scroll" id="subpage-apikey-body"></div>
+</div>
+
+<div class="subpage" id="subpage-casino">
+  <div class="sub-top">
+    <button class="sub-back" onclick="closeSubpage('casino')">← Terug</button>
+    <div class="sub-title">Casino-modus</div>
+    <div class="sub-action"></div>
+  </div>
+  <div class="sub-scroll" id="subpage-casino-body"></div>
 </div>
 
 <div class="bnav">

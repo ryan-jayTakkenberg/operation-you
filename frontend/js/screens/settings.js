@@ -37,6 +37,7 @@ function openSubpage(name){
   if(name==='whoop') renderWhoopInSubpage();
   if(name==='notif') renderNotifInSubpage();
   if(name==='apikey') renderApikeyInSubpage();
+  if(name==='casino') renderCasinoInSubpage();
   el.classList.add('open');
 }
 
@@ -164,6 +165,56 @@ function renderNotifInSubpage(){
     </div>
   `;
   renderNotifSettings();
+}
+
+const DAY_LABELS = ['Zo','Ma','Di','Wo','Do','Vr','Za'];
+
+function renderCasinoInSubpage(){
+  const body = document.getElementById('subpage-casino-body');
+  if(!body) return;
+  const cm = S.casinoMode;
+  const on = cm.enabled;
+  const days = cm.days||[];
+  body.innerHTML = `
+    <div style="padding:20px 22px">
+      <div class="notif-section">
+        <div class="notif-title">Casino-modus</div>
+        <div class="notif-sub">Op casino-nachten (standaard vr + za) tellen avond-regels niet mee voor je dagelijkse score. Zo hoef je bij een late werknacht niet te falen op regels die je die dag gewoon niet kunt halen.</div>
+        <div class="notif-row" style="margin-top:16px">
+          <div class="notif-info">
+            <div class="notif-info-lbl">Casino-modus</div>
+            <div class="notif-info-sub">${on?'Actief — avondregels tellen niet op casino-nachten':'Uitgeschakeld'}</div>
+          </div>
+          <div class="toggle${on?' on':''}" id="casino-main-toggle" onclick="toggleCasinoMode()"><div class="toggle-knob"></div></div>
+        </div>
+        <div id="casino-days-wrap" style="${on?'':'opacity:.35;pointer-events:none'}">
+          <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.12em;margin:20px 0 10px;text-transform:uppercase">Casino-nachten</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${[0,1,2,3,4,5,6].map(d=>`
+              <button class="casino-day-btn${days.includes(d)?' on':''}" onclick="toggleCasinoDay(${d})">${DAY_LABELS[d]}</button>
+            `).join('')}
+          </div>
+          <div style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.6">Tik op een dag om die als casino-nacht aan/uit te zetten. Standaard: Vr + Za.</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleCasinoMode(){
+  S.casinoMode.enabled = !S.casinoMode.enabled;
+  save();
+  renderCasinoInSubpage();
+  renderAll();
+}
+
+function toggleCasinoDay(d){
+  const idx = (S.casinoMode.days||[]).indexOf(d);
+  if(idx===-1) S.casinoMode.days.push(d);
+  else S.casinoMode.days.splice(idx,1);
+  save();
+  renderCasinoInSubpage();
+  renderAll();
 }
 
 function renderApikeyInSubpage(){

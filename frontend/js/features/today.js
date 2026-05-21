@@ -6,6 +6,7 @@ function renderRules(){
   if(!listEl) return;
   const c=todayChecks();let h='';
   const rs=rules();
+  const casino=isCasinoDay();
   if(rs.length===0){
     listEl.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--muted);font-size:13px">Geen wetten geladen.</div>';
     return;
@@ -14,16 +15,21 @@ function renderRules(){
     const meta=SECTION_META[secKey];
     const secRules=rs.filter(r=>r.section===secKey);
     if(!secRules.length)return;
-    const sd=secRules.filter(r=>c[r.id]).length;
-    const full=sd===secRules.length;
-    h+=`<div class="sec"><span class="sec-name">${meta.name}</span><span class="sec-prog ${full?'full':''}">${sd}/${secRules.length}</span></div>`;
+    const exempt=casino&&secKey==='avond';
+    const active=exempt?[]:secRules;
+    const sd=active.filter(r=>c[r.id]).length;
+    const secTotal=active.length;
+    const full=secTotal>0&&sd===secTotal;
+    const secProgTxt=exempt?`<span class="sec-casino-badge">casino</span>`:`${sd}/${secTotal}`;
+    h+=`<div class="sec"><span class="sec-name">${meta.name}</span><span class="sec-prog ${full?'full':''}">${secProgTxt}</span></div>`;
     secRules.forEach(r=>{
-      const done=c[r.id]?'done':'';
+      const isExempt=casino&&r.section==='avond';
+      const done=!isExempt&&c[r.id]?'done':'';
       const hasInfo = r.sub || r.warn;
-      h+=`<div class="rule ${done}" id="rule-${r.id}">
-        <div class="rbox" onclick="event.stopPropagation();toggleRule('${r.id}')"><span class="rchk">✓</span></div>
+      h+=`<div class="rule ${done}${isExempt?' casino-exempt':''}" id="rule-${r.id}">
+        <div class="rbox" onclick="event.stopPropagation();${isExempt?'':` toggleRule('${r.id}')`}"><span class="rchk">✓</span></div>
         <div class="rbody" onclick="toggleRuleExpand('${r.id}')">
-          <div class="rname">${escapeHtml(r.name)}</div>
+          <div class="rname">${escapeHtml(r.name)}${isExempt?'<span class="casino-badge">opt.</span>':''}</div>
           ${r.sub?`<div class="rsub">${escapeHtml(r.sub)}</div>`:''}
           ${r.warn?`<div class="rwarn">${escapeHtml(r.warn)}</div>`:''}
         </div>
@@ -32,6 +38,17 @@ function renderRules(){
     });
   });
   listEl.innerHTML=h;
+}
+
+function renderCasinoBanner(){
+  const el=document.getElementById('casino-banner-wrap');
+  if(!el)return;
+  if(!isCasinoDay()){el.innerHTML='';return;}
+  const avondCount=rules().filter(r=>r.section==='avond').length;
+  el.innerHTML=`<div class="casino-banner">
+    <span class="casino-banner-ic">🎰</span>
+    <span class="casino-banner-txt">Casino-nacht — ${avondCount} avondregel${avondCount===1?'':'s'} tel${avondCount===1?'t':'len'} niet mee</span>
+  </div>`;
 }
 
 function toggleRuleExpand(id){

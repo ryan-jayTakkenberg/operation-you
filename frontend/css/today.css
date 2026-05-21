@@ -104,5 +104,19 @@
 .fail-wrap{display:none}
 .fail-btn{background:transparent;border:1px solid rgba(255,122,133,0.4);color:var(--red);font-family:var(--mono);letter-spacing:.1em;border-radius:8px;font-weight:600}
 
+/* CASINO BANNER */
+.casino-banner{display:flex;align-items:center;gap:10px;margin:0 16px 10px;padding:10px 14px;background:rgba(94,240,255,0.06);border:1px solid var(--ac-glow);border-radius:12px}
+.casino-banner-ic{font-size:16px;flex-shrink:0}
+.casino-banner-txt{font-size:12px;font-weight:600;color:var(--ac);letter-spacing:.01em}
+
+/* CASINO EXEMPT RULE */
+.rule.casino-exempt{opacity:.45;pointer-events:none}
+.casino-badge{display:inline-block;margin-left:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--ac);background:var(--ac-dim);padding:2px 6px;border-radius:4px;text-transform:uppercase;vertical-align:middle}
+.sec-casino-badge{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--ac);background:var(--ac-dim);padding:2px 7px;border-radius:6px;text-transform:uppercase}
+
+/* CASINO DAY BUTTONS */
+.casino-day-btn{padding:8px 14px;background:var(--bg3);border:1px solid var(--line2);border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.casino-day-btn.on{background:var(--ac-dim);border-color:var(--ac);color:var(--ac)}
+
 /* pulse animation */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}

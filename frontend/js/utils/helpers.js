@@ -7,17 +7,24 @@ function escapeHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── Casino night check ────────────────────────────────────────
+function isCasinoDay(){
+  if(!S.casinoMode||!S.casinoMode.enabled)return false;
+  return(S.casinoMode.days||[]).includes(new Date().getDay());
+}
+
 // ── Coach context builder ─────────────────────────────────────
 // Used by journey.js, spiegel.js, coach.js, modal.js, milestones.js, whoop.js
 function buildCoachContext(){
   const p=S.profile||{}, id=S.identity||{};
+  const casinoLine=isCasinoDay()?'\nCasino-nacht: Ja — avondregels tellen niet mee vandaag.':'';
   return `Persoon: ${p.name||'?'}, ${p.age||'?'}.
 Leven: ${(p.daily||'').slice(0,250)}
 Verhaal in 't kort: ${(p.story||'').slice(0,300)}
 Sterktes: ${(p.strengths||'').slice(0,150)}
 Zwaktes: ${(p.weak||'').slice(0,200)}
 Doel dag 75: ${(p.goal||'').slice(0,200)}
-Schaduw: ${id.shadow||''}`;
+Schaduw: ${id.shadow||''}${casinoLine}`;
 }
 
 // ── 75-day dot grid renderer ──────────────────────────────────

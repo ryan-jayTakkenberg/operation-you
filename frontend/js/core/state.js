@@ -14,8 +14,10 @@ let S = JSON.parse(localStorage.getItem('75h6')||'null') || {
   profile:null,    // {name,age,daily,energy,story,strengths,weak,goal}
   identity:null,   // {name, manifesto, shadow, rules:[...]}
   startDate:null,  // YYYY-MM-DD
-  checks:{}, fails:[], restarts:0, entries:[], whoop:{}, milestones:{}
+  checks:{}, fails:[], restarts:0, entries:[], whoop:{}, milestones:{},
+  casinoMode:{ enabled:true, days:[5,6] }
 };
+if(!S.casinoMode) S.casinoMode = { enabled:true, days:[5,6] };
 function save(){
   localStorage.setItem('75h6',JSON.stringify(S));
   API.syncState(S);  // sync to server in background (noop if offline/not logged in)
@@ -49,5 +51,11 @@ function dateForDay(n){
 }
 function rules(){return (S.identity&&S.identity.rules)||[];}
 function todayChecks(){if(!S.checks[today()])S.checks[today()]={};return S.checks[today()];}
-function progress(){const c=todayChecks();const rs=rules();const done=rs.filter(r=>c[r.id]).length;return{done,total:rs.length};}
+function progress(){
+  const c=todayChecks();const rs=rules();
+  const casino=typeof isCasinoDay==='function'&&isCasinoDay();
+  const active=casino?rs.filter(r=>r.section!=='avond'):rs;
+  const done=active.filter(r=>c[r.id]).length;
+  return{done,total:active.length,casinoNight:casino};
+}
 function entryForDate(date){return S.entries.find(e=>e.date===date)||null;}

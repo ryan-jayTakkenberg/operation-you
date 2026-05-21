@@ -13,10 +13,8 @@ function checkMilestone(){
   const n=dayNum();
   const ms=MILESTONES[n];
   if(!ms)return;
-  const c=todayChecks();
-  const rs=rules();
-  const done=rs.filter(r=>c[r.id]).length;
-  if(rs.length===0||done<rs.length)return;
+  const{done,total}=progress();
+  if(total===0||done<total)return;
   if(S.milestones&&S.milestones[n])return;
   if(!S.milestones)S.milestones={};
   S.milestones[n]=true;

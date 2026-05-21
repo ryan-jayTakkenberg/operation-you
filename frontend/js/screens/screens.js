@@ -32,7 +32,7 @@ function renderDots(){
   renderDots75('dot75', 'dots');
 }
 
-function renderAll(){renderHeader();renderDots();renderProg();renderRules();renderJourney();renderSpiegel();checkMilestone();renderHeroCard();renderMoodStrip();}
+function renderAll(){renderHeader();renderDots();renderProg();renderRules();renderJourney();renderSpiegel();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner();}
 
 function go(p){
   const mainRoutes = ['today','plan','coach','me'];
