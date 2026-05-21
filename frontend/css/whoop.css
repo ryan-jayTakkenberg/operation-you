@@ -1,0 +1,41 @@
+/* ═══ WHOOP ═══ */
+.whoop-page-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.w-card{background:var(--bg2);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.w-card-top{padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+.w-clbl{font-family:'Courier Prime','Roboto Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.w-clbl.rc{color:var(--green)}.w-clbl.sl{color:var(--blue)}.w-clbl.st{color:var(--orange)}
+.w-big{font-family:'Courier Prime','Roboto Mono',monospace;font-size:34px;font-weight:800;line-height:1}
+.w-big.rc{color:var(--green)}.w-big.sl{color:var(--blue)}.w-big.st{color:var(--orange)}
+.w-unit{font-size:12px;color:var(--muted);font-weight:300;margin-left:3px}
+.w-bar-wrap{padding:0 16px 12px}
+.w-bar-bg{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.w-bar-f{height:100%;border-radius:2px;transition:width .5s}
+.w-bar-f.rc{background:var(--green)}.w-bar-f.sl{background:var(--blue)}.w-bar-f.st{background:var(--orange)}
+.w-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 14px}
+.w-ig{display:flex;flex-direction:column;gap:4px}
+.w-il{font-size:10px;color:var(--muted);font-weight:300}
+.w-in{background:var(--bg3);border:1px solid var(--line2);color:var(--text);font-family:'Roboto Mono',monospace;font-size:14px;font-weight:500;padding:8px 10px;border-radius:2px;outline:none;width:100%;-webkit-appearance:none}
+.w-save{margin:0 16px 12px;width:calc(100% - 32px);padding:11px;background:var(--ac);color:#000;font-family:'Courier Prime','Roboto Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.1em;border:none;border-radius:2px;cursor:pointer;text-transform:uppercase}
+.w-ai-btn{margin:0 16px 12px;width:calc(100% - 32px);padding:10px;background:none;border:1px solid rgba(234,88,12,.25);color:var(--ac);font-family:'Courier Prime','Roboto Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;border-radius:2px;cursor:pointer;text-transform:uppercase}
+.w-ai-res{margin:0 16px 12px;padding:12px;background:var(--bg3);border-left:2px solid var(--ac);font-size:12px;color:var(--muted);line-height:1.7;font-weight:300}
+.w-hist-title{font-family:'Courier Prime','Roboto Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;padding:0 16px;margin-bottom:8px}
+.w-hist-row{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--line)}
+.w-hist-row:last-child{border-bottom:none}
+.w-hist-d{font-size:11px;color:var(--muted);font-weight:300}
+.w-hist-vals{display:flex;gap:10px}
+.whv{font-family:'Courier Prime','Roboto Mono',monospace;font-size:13px;font-weight:600}
+.whv.r{color:var(--green)}.whv.s{color:var(--blue)}.whv.st{color:var(--orange)}
+
+/* Whoop quick-entry in settings */
+.whoop-quick{padding:18px 22px}
+.whoop-quick-lbl{font-family:'Courier Prime','Roboto Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+
+/* Arctic dark overrides */
+.w-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.w-bar-bg{background:var(--bg3);height:4px;border-radius:2px}
+.w-in{background:var(--bg3);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13.5px}
+.w-in:focus{border-color:var(--ac-glow)}
+.w-save{background:var(--ac);color:#000;border-radius:8px;font-family:var(--mono);font-weight:700;letter-spacing:.1em}
+.w-ai-btn{background:transparent;border:1px solid var(--line2);color:var(--muted);border-radius:8px;font-family:var(--mono);letter-spacing:.1em}
+.w-ai-res{background:var(--bg2);border-left:3px solid var(--ac);border-radius:8px;color:var(--text);font-size:12.5px}
+.w-hist-d{color:var(--muted);font-size:11px}
