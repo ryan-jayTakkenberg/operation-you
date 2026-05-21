@@ -1,43 +1,56 @@
 // ═══════════════════════════════
 // TODAY PAGE — rules, quote, mood, hero
 // ═══════════════════════════════
+const ZONE_SECTIONS={
+  'rlist-ochtend':    ['ochtend','dag'],
+  'rlist-tussendoor': ['fysiek','mentaal'],
+  'rlist-avond':      ['avond']
+};
+
 function renderRules(){
-  const listEl=document.getElementById('rlist');
-  if(!listEl) return;
-  const c=todayChecks();let h='';
+  const c=todayChecks();
   const rs=rules();
   const casino=isCasinoDay();
+
   if(rs.length===0){
-    listEl.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--muted);font-size:13px">Geen wetten geladen.</div>';
+    const el=document.getElementById('rlist-ochtend');
+    if(el)el.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--muted);font-size:13px">Geen wetten geladen.</div>';
+    ['rlist-tussendoor','rlist-avond'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
     return;
   }
-  SECTION_ORDER.forEach(secKey=>{
-    const meta=SECTION_META[secKey];
-    const secRules=rs.filter(r=>r.section===secKey);
-    if(!secRules.length)return;
-    const exempt=casino&&secKey==='avond';
-    const active=exempt?[]:secRules;
-    const sd=active.filter(r=>c[r.id]).length;
-    const secTotal=active.length;
-    const full=secTotal>0&&sd===secTotal;
-    const secProgTxt=exempt?`<span class="sec-casino-badge">casino</span>`:`${sd}/${secTotal}`;
-    h+=`<div class="sec"><span class="sec-name">${meta.name}</span><span class="sec-prog ${full?'full':''}">${secProgTxt}</span></div>`;
-    secRules.forEach(r=>{
-      const isExempt=casino&&r.section==='avond';
-      const done=!isExempt&&c[r.id]?'done':'';
-      const hasInfo = r.sub || r.warn;
-      h+=`<div class="rule ${done}${isExempt?' casino-exempt':''}" id="rule-${r.id}">
-        <div class="rbox" onclick="event.stopPropagation();${isExempt?'':` toggleRule('${r.id}')`}"><span class="rchk">✓</span></div>
-        <div class="rbody" onclick="toggleRuleExpand('${r.id}')">
-          <div class="rname">${escapeHtml(r.name)}${isExempt?'<span class="casino-badge">opt.</span>':''}</div>
-          ${r.sub?`<div class="rsub">${escapeHtml(r.sub)}</div>`:''}
-          ${r.warn?`<div class="rwarn">${escapeHtml(r.warn)}</div>`:''}
-        </div>
-        ${hasInfo?`<div class="rule-info-btn" onclick="toggleRuleExpand('${r.id}')">ⓘ</div>`:''}
-      </div>`;
+
+  Object.entries(ZONE_SECTIONS).forEach(([zoneId,sections])=>{
+    const el=document.getElementById(zoneId);
+    if(!el)return;
+    let h='';
+    sections.forEach(secKey=>{
+      const meta=SECTION_META[secKey];
+      const secRules=rs.filter(r=>r.section===secKey);
+      if(!secRules.length)return;
+      const exempt=casino&&secKey==='avond';
+      const active=exempt?[]:secRules;
+      const sd=active.filter(r=>c[r.id]).length;
+      const secTotal=active.length;
+      const full=secTotal>0&&sd===secTotal;
+      const secProgTxt=exempt?`<span class="sec-casino-badge">casino</span>`:`${sd}/${secTotal}`;
+      h+=`<div class="sec"><span class="sec-name">${meta.name}</span><span class="sec-prog ${full?'full':''}">${secProgTxt}</span></div>`;
+      secRules.forEach(r=>{
+        const isExempt=casino&&r.section==='avond';
+        const done=!isExempt&&c[r.id]?'done':'';
+        const hasInfo=r.sub||r.warn;
+        h+=`<div class="rule ${done}${isExempt?' casino-exempt':''}" id="rule-${r.id}">
+          <div class="rbox" onclick="event.stopPropagation();${isExempt?'':` toggleRule('${r.id}')`}"><span class="rchk">✓</span></div>
+          <div class="rbody" onclick="toggleRuleExpand('${r.id}')">
+            <div class="rname">${escapeHtml(r.name)}${isExempt?'<span class="casino-badge">opt.</span>':''}</div>
+            ${r.sub?`<div class="rsub">${escapeHtml(r.sub)}</div>`:''}
+            ${r.warn?`<div class="rwarn">${escapeHtml(r.warn)}</div>`:''}
+          </div>
+          ${hasInfo?`<div class="rule-info-btn" onclick="toggleRuleExpand('${r.id}')">ⓘ</div>`:''}
+        </div>`;
+      });
     });
+    el.innerHTML=h;
   });
-  listEl.innerHTML=h;
 }
 
 function renderCasinoBanner(){
@@ -228,6 +241,52 @@ Schrijf 1-2 zinnen: een scherpe data-gedreven observatie of concrete opdracht. D
 }
 
 function refreshInsight(){loadDayInsight(true);}
+
+// ═══════════════════════════════
+// QUICK LOG — FAB bottom sheet
+// ═══════════════════════════════
+let _qlogType=null;
+
+function openQuickLog(){
+  const ov=document.getElementById('quicklog-overlay');
+  if(!ov)return;
+  ov.classList.remove('hidden');
+  document.getElementById('qlog-type-view').classList.remove('hidden');
+  document.getElementById('qlog-input-view').classList.add('hidden');
+  _qlogType=null;
+}
+
+function closeQuickLog(){
+  const ov=document.getElementById('quicklog-overlay');
+  if(ov)ov.classList.add('hidden');
+  _qlogType=null;
+}
+
+function selectQuickLogType(type){
+  _qlogType=type;
+  const labels={workout:'Workout',gedachte:'Gedachte',win:'Win van de dag',notitie:'Notitie'};
+  document.getElementById('qlog-input-label').textContent=labels[type]||type;
+  document.getElementById('qlog-text').value='';
+  document.getElementById('qlog-type-view').classList.add('hidden');
+  document.getElementById('qlog-input-view').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('qlog-text').focus(),100);
+}
+
+function backToQuickLogTypes(){
+  document.getElementById('qlog-type-view').classList.remove('hidden');
+  document.getElementById('qlog-input-view').classList.add('hidden');
+  _qlogType=null;
+}
+
+function saveQuickLog(){
+  const text=document.getElementById('qlog-text').value.trim();
+  if(!text||!_qlogType)return;
+  if(!S.quickLogs)S.quickLogs=[];
+  S.quickLogs.push({type:_qlogType,text,date:today(),dayNum:dayNum(),ts:Date.now()});
+  save();
+  closeQuickLog();
+}
+
 
 // ═══════════════════════════════
 // HERO CARD

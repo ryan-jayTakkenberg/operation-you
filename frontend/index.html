@@ -195,27 +195,40 @@
 <!-- TODAY -->
 <div class="page on" id="page-today">
   <div class="scroll">
-    <div id="today-hero"></div>
-    <div id="mood-strip-wrap"></div>
-    <div class="day-quote">
-      <div class="dq-top">
-        <div class="dq-lbl"><span class="dq-dot"></span> Boodschap voor vandaag</div>
-        <button class="dq-refresh" id="dq-refresh-btn" onclick="refreshQuote()"><span class="dq-rot">↻</span> Nieuwe</button>
+    <!-- ZONE 1: OCHTEND -->
+    <div class="zone-block" id="zone-ochtend">
+      <div id="today-hero"></div>
+      <div class="day-quote">
+        <div class="dq-top">
+          <div class="dq-lbl"><span class="dq-dot"></span> Boodschap voor vandaag</div>
+          <button class="dq-refresh" id="dq-refresh-btn" onclick="refreshQuote()"><span class="dq-rot">↻</span> Nieuwe</button>
+        </div>
+        <div class="dq-txt dq-loading" id="day-quote">Laden…</div>
+        <div class="dq-signature" id="dq-signature"></div>
       </div>
-      <div class="dq-txt dq-loading" id="day-quote">Laden…</div>
-      <div class="dq-signature" id="dq-signature"></div>
-    </div>
-    <div class="day-insight-card" id="insight-card">
-      <div class="di-top">
-        <div class="di-lbl">Patroon-analyse</div>
-        <button class="dq-refresh di-refresh" id="di-refresh-btn" onclick="refreshInsight()"><span class="dq-rot">↻</span> Nieuw</button>
+      <div class="day-insight-card" id="insight-card">
+        <div class="di-top">
+          <div class="di-lbl">Patroon-analyse</div>
+          <button class="dq-refresh di-refresh" id="di-refresh-btn" onclick="refreshInsight()"><span class="dq-rot">↻</span> Nieuw</button>
+        </div>
+        <div class="di-txt di-loading" id="day-insight">Laden…</div>
       </div>
-      <div class="di-txt di-loading" id="day-insight">Laden…</div>
+      <div id="rlist-ochtend"></div>
     </div>
-    <div id="casino-banner-wrap"></div>
-    <div id="rlist"></div>
-    <div class="fail-wrap">
-      <button class="fail-btn" onclick="failDay()">Dag mislukt — terug naar dag 1</button>
+    <!-- ZONE 2: TUSSENDOOR -->
+    <div class="zone-block" id="zone-tussendoor">
+      <div class="zone-header">Tussendoor</div>
+      <div id="rlist-tussendoor"></div>
+      <div id="mood-strip-wrap"></div>
+    </div>
+    <!-- ZONE 3: AVOND -->
+    <div class="zone-block" id="zone-avond">
+      <div class="zone-header">Avond</div>
+      <div id="casino-banner-wrap"></div>
+      <div id="rlist-avond"></div>
+      <div class="fail-wrap">
+        <button class="fail-btn" onclick="failDay()">Dag mislukt — terug naar dag 1</button>
+      </div>
     </div>
   </div>
 </div>
@@ -309,6 +322,27 @@
     <button class="detail-add-btn" id="detail-add-btn" onclick="openModalFromDetail()">+ Entry</button>
   </div>
   <div class="detail-scroll" id="detail-scroll"></div>
+</div>
+
+<!-- QUICK LOG OVERLAY -->
+<div class="overlay hidden" id="quicklog-overlay" onclick="closeQuickLog()">
+  <div class="modal quicklog-sheet" onclick="event.stopPropagation()">
+    <div id="qlog-type-view">
+      <div class="qlog-title">Snel loggen</div>
+      <div class="qlog-types">
+        <button class="qlog-type-btn" onclick="selectQuickLogType('workout')">🏋️ Workout</button>
+        <button class="qlog-type-btn" onclick="selectQuickLogType('gedachte')">💡 Gedachte</button>
+        <button class="qlog-type-btn" onclick="selectQuickLogType('win')">🏆 Win</button>
+        <button class="qlog-type-btn" onclick="selectQuickLogType('notitie')">📝 Notitie</button>
+      </div>
+    </div>
+    <div id="qlog-input-view" class="hidden">
+      <button class="qlog-back" onclick="backToQuickLogTypes()">← Terug</button>
+      <div class="qlog-input-label" id="qlog-input-label"></div>
+      <textarea id="qlog-text" class="qlog-textarea" rows="3" placeholder="..."></textarea>
+      <button class="btn-post qlog-save-btn" onclick="saveQuickLog()">Opslaan</button>
+    </div>
+  </div>
 </div>
 
 <!-- CONFIRM -->
@@ -492,6 +526,8 @@
   </div>
   <div class="sub-scroll" id="subpage-casino-body"></div>
 </div>
+
+<button class="fab fab-hidden" id="fab-btn" onclick="openQuickLog()">✦</button>
 
 <div class="bnav">
   <div class="nbtn on" id="nb-today" onclick="go('today')"><div class="nicon">◉</div><div class="nlbl">Vandaag</div></div>
