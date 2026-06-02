@@ -45,6 +45,7 @@ function renderStats(){
 function renderRuleAnalytics(){
   const el=document.getElementById('rule-analytics');
   if(!el)return;
+  if(!S.identity){el.innerHTML='';return;}
   const rs=rules();
   if(!rs.length||!S.startDate){el.innerHTML='';return;}
   const start=startDateObj();
@@ -66,25 +67,36 @@ function renderRuleAnalytics(){
   }
   const total=days.length;
   if(!total){el.innerHTML='';return;}
-  const rated=rs.map(r=>({r,pct:Math.round((hits[r.id]||0)/total*100)}));
+  // only include rules that had at least one opportunity (all rules qualify once total>0)
+  const rated=rs.map(r=>({r,pct:Math.round((hits[r.id]||0)/total*100),count:hits[r.id]||0}));
   rated.sort((a,b)=>a.pct-b.pct);
   const weakest=rated.slice(0,3);
   const strongest=rated.slice(-3).reverse();
-  const barColor=pct=>pct>=80?'var(--green)':pct>=50?'var(--orange)':'var(--ac)';
-  const row=({r,pct})=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)">
-      <div style="flex:1;font-size:11px;font-family:var(--mono);color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escapeHtml(r.name)}</div>
-      <div style="width:80px;height:4px;background:var(--bg3);flex-shrink:0">
-        <div style="width:${pct}%;height:100%;background:${barColor(pct)}"></div>
+  const weakRow=({r,pct,count})=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line2)">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--ac);flex-shrink:0;font-weight:700">✗</div>
+      <div style="flex:1;font-size:11px;font-family:var(--mono);color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em">${escapeHtml(r.name)}</div>
+      <div style="width:72px;height:3px;background:var(--bg4);flex-shrink:0">
+        <div style="width:${pct}%;height:100%;background:var(--ac)"></div>
       </div>
-      <div style="width:32px;text-align:right;font-size:11px;font-family:var(--mono);color:var(--muted);flex-shrink:0">${pct}%</div>
+      <div style="width:34px;text-align:right;font-size:11px;font-family:var(--mono);color:var(--ac);flex-shrink:0;font-weight:600">${pct}%</div>
+    </div>`;
+  const strongRow=({r,pct,count})=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line2)">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--green);flex-shrink:0;font-weight:700">✓</div>
+      <div style="flex:1;font-size:11px;font-family:var(--mono);color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em">${escapeHtml(r.name)}</div>
+      <div style="width:72px;height:3px;background:var(--bg4);flex-shrink:0">
+        <div style="width:${pct}%;height:100%;background:var(--green)"></div>
+      </div>
+      <div style="width:34px;text-align:right;font-size:11px;font-family:var(--mono);color:var(--green);flex-shrink:0;font-weight:600">${pct}%</div>
     </div>`;
   el.innerHTML=`
-    <div style="margin:20px 16px 0">
-      <div style="font-size:10px;font-weight:600;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Zwakste wetten</div>
-      ${weakest.map(row).join('')}
-      <div style="font-size:10px;font-weight:600;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin:16px 0 8px">Sterkste wetten</div>
-      ${strongest.map(row).join('')}
+    <div style="margin:20px 16px 0;border:1px solid var(--line2);padding:14px 14px 6px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid var(--line2);padding-bottom:8px">Wet analyse — ${total} dag${total===1?'':'en'}</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--ac);text-transform:uppercase;margin-bottom:4px">Zwakste wetten</div>
+      ${weakest.map(weakRow).join('')}
+      <div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--green);text-transform:uppercase;margin:14px 0 4px">Sterkste wetten</div>
+      ${strongest.map(strongRow).join('')}
     </div>`;
 }
 

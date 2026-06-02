@@ -22,6 +22,11 @@ function openSettings(){
     const k = getApiKey();
     apiDesc.textContent = k ? 'Ingesteld — werkt overal' : 'Niet ingesteld';
   }
+  const trainingDesc = document.getElementById('settings-training-desc');
+  if(trainingDesc){
+    const count = (S.trainingLog || []).length;
+    trainingDesc.textContent = count ? count + ' sessie' + (count === 1 ? '' : 's') + ' gelogd' : 'Sessies, intensiteit, leerpunten';
+  }
 }
 
 function closeSettings(){
@@ -38,6 +43,7 @@ function openSubpage(name){
   if(name==='notif') renderNotifInSubpage();
   if(name==='apikey') renderApikeyInSubpage();
   if(name==='casino') renderCasinoInSubpage();
+  if(name==='training') renderTrainingInSubpage();
   el.classList.add('open');
 }
 

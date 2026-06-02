@@ -22,7 +22,8 @@ let S = JSON.parse(localStorage.getItem('75h6')||'null') || {
   backlog:[],      // [{id,title,desc,priority,status,notes,createdAt,updatedAt}]
   casinoMode:{ enabled:true, days:[5,6], label:'Nachtdienst', exemptSections:['avond'] },
   dayInsight:{},
-  quickLogs:[]
+  quickLogs:[],
+  trainingLog:[]  // [{id, date, activity, intensity, duration, note, ts}]
 };
 // migration guards voor bestaande localStorage-data
 if(!S.mood) S.mood = {};
@@ -35,6 +36,7 @@ if(!S.casinoMode.label) S.casinoMode.label = 'Nachtdienst';
 if(!S.casinoMode.exemptSections) S.casinoMode.exemptSections = ['avond'];
 if(!S.dayInsight) S.dayInsight = {};
 if(!S.quickLogs) S.quickLogs = [];
+if(!S.trainingLog) S.trainingLog = [];
 function save(){
   localStorage.setItem('75h6',JSON.stringify(S));
   API.syncState(S);  // sync to server in background (noop if offline/not logged in)

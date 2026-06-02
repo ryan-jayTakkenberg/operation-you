@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="css/stats.css">
 <link rel="stylesheet" href="css/backlog.css">
 <link rel="stylesheet" href="css/modals.css">
+<link rel="stylesheet" href="css/training.css">
 
 </head>
 <body>
@@ -416,6 +417,11 @@
         <div class="s-body"><div class="s-name">Whoop data</div><div class="s-desc">Recovery, slaap, strain invoeren</div></div>
         <div class="s-chev">›</div>
       </div>
+      <div class="s-item" onclick="openSubpage('training')">
+        <div class="s-icon">🥊</div>
+        <div class="s-body"><div class="s-name">Training log</div><div class="s-desc" id="settings-training-desc">Sessies, intensiteit, leerpunten</div></div>
+        <div class="s-chev">›</div>
+      </div>
       <div class="s-item" onclick="openSubpage('notif')">
         <div class="s-icon">🔔</div>
         <div class="s-body"><div class="s-name">Notificaties</div><div class="s-desc" id="settings-notif-desc">Dagelijkse reminders</div></div>
@@ -528,6 +534,15 @@
   <div class="sub-scroll" id="subpage-casino-body"></div>
 </div>
 
+<div class="subpage" id="subpage-training">
+  <div class="sub-top">
+    <button class="sub-back" onclick="closeSubpage('training')">← Terug</button>
+    <div class="sub-title">Training log</div>
+    <div class="sub-action"></div>
+  </div>
+  <div class="sub-scroll" id="subpage-training-body"></div>
+</div>
+
 <!-- FOTO LIGHTBOX -->
 <div class="lb-overlay" id="lb-overlay" onclick="closeLightbox()">
   <div class="lb-inner" onclick="event.stopPropagation()"
@@ -573,6 +588,7 @@
 <script src="js/features/stats.js"></script>
 <script src="js/features/spiegel.js"></script>
 <script src="js/features/whoop.js"></script>
+<script src="js/features/training.js"></script>
 <script src="js/features/backlog.js"></script>
 <script src="js/features/notifications.js"></script>
 <script src="js/features/journey.js"></script>

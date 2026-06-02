@@ -48,10 +48,12 @@ function closeModal(){document.getElementById('modal').classList.add('hidden');}
 
 function compressImage(file,maxWidth,quality){
   maxWidth=maxWidth||800;quality=quality||0.75;
-  return new Promise(function(resolve){
+  return new Promise(function(resolve,reject){
     const reader=new FileReader();
+    reader.onerror=reject;
     reader.onload=function(e){
       const img=new Image();
+      img.onerror=reject;
       img.onload=function(){
         const ratio=Math.min(maxWidth/img.width,1);
         const canvas=document.createElement('canvas');
@@ -68,12 +70,17 @@ function compressImage(file,maxWidth,quality){
 
 async function handlePic(input){
   const f=input.files[0];if(!f)return;
-  picData=await compressImage(f);
-  const prev=document.getElementById('ppreview');
-  if(!prev)return;
-  prev.src=picData;prev.classList.remove('hidden');
-  const pzi=document.getElementById('pzi');
-  if(pzi)pzi.style.display='none';
+  try{
+    picData=await compressImage(f);
+    const prev=document.getElementById('ppreview');
+    if(!prev)return;
+    prev.src=picData;prev.classList.remove('hidden');
+    const pzi=document.getElementById('pzi');
+    if(pzi)pzi.style.display='none';
+  }catch(e){
+    picData=null;
+    console.error('Foto laden mislukt:',e);
+  }
 }
 
 function postEntry(){
