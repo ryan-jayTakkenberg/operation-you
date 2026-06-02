@@ -1,9 +1,23 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
 const db = require('../db');
 const { signToken, requireAuth } = require('../auth');
 
-router.post('/register', async (req, res) => {
+// Issue #10: Rate limiting op login/register — beschermt tegen brute-force aanvallen
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minuten
+  max: 10,                   // max 10 pogingen per IP per venster
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Te veel pogingen. Probeer over 15 minuten opnieuw.' },
+  handler: (req, res, next, options) => {
+    console.warn(`[SECURITY] Auth rate limit bereikt voor IP ${req.ip} op ${req.path}`);
+    res.status(options.statusCode).json(options.message);
+  }
+});
+
+router.post('/register', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email en wachtwoord zijn verplicht' });
   if (password.length < 8) return res.status(400).json({ error: 'Wachtwoord moet minstens 8 tekens zijn' });
@@ -21,7 +35,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email en wachtwoord zijn verplicht' });
 

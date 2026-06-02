@@ -3,6 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
+// Issue #12: Validate JWT_SECRET at startup — fail fast before any routes load
+const JWT_SECRET = process.env.JWT_SECRET;
+const PLACEHOLDER = 'verander-dit-naar-iets-random-en-lang';
+if (!JWT_SECRET || JWT_SECRET === PLACEHOLDER || JWT_SECRET.length < 32) {
+  console.error('FATAL: JWT_SECRET is not set, is still the placeholder value, or is shorter than 32 characters.');
+  console.error('Generate a secure secret with: node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"');
+  process.exit(1);
+}
+
 const app = express();
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5500,http://127.0.0.1:5500,http://localhost:8080').split(',');

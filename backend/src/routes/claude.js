@@ -1,9 +1,24 @@
 const router = require('express').Router();
+const rateLimit = require('express-rate-limit');
 const { requireAuth } = require('../auth');
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
-router.post('/', requireAuth, async (req, res) => {
+// Issue #11: Rate limiting op Claude API proxy — voorkomt onverwachte API-kosten door misbruik
+const claudeLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 uur
+  max: 100,                  // max 100 Claude-calls per uur per gebruiker
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || req.ip, // per gebruiker na auth, anders per IP
+  message: { error: 'API limiet bereikt. Probeer over een uur opnieuw.' },
+  handler: (req, res, next, options) => {
+    console.warn(`[SECURITY] Claude rate limit bereikt voor userId=${req.userId} IP=${req.ip}`);
+    res.status(options.statusCode).json(options.message);
+  }
+});
+
+router.post('/', requireAuth, claudeLimiter, async (req, res) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || apiKey.startsWith('sk-ant-...')) {
     return res.status(503).json({ error: 'API key niet geconfigureerd op server. Voeg ANTHROPIC_API_KEY toe aan .env' });
