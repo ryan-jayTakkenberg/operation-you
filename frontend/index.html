@@ -528,6 +528,23 @@
   <div class="sub-scroll" id="subpage-casino-body"></div>
 </div>
 
+<!-- FOTO LIGHTBOX -->
+<div class="lb-overlay" id="lb-overlay" onclick="closeLightbox()">
+  <div class="lb-inner" onclick="event.stopPropagation()"
+       ontouchstart="_lbTouchStart(event)"
+       ontouchend="_lbTouchEnd(event)">
+    <img class="lb-img" id="lb-img" src="" alt="">
+    <div class="lb-bottom">
+      <div class="lb-info" id="lb-info"></div>
+      <button class="lb-detail-btn" onclick="lbOpenDetail()">Bekijk dag →</button>
+    </div>
+  </div>
+  <div class="lb-counter" id="lb-counter"></div>
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-arrow lb-arrow-prev" id="lb-prev" onclick="event.stopPropagation();lbPrev()">‹</button>
+  <button class="lb-arrow lb-arrow-next" id="lb-next" onclick="event.stopPropagation();lbNext()">›</button>
+</div>
+
 <button class="fab fab-hidden" id="fab-btn" onclick="openQuickLog()">✦</button>
 
 <div class="bnav">

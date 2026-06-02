@@ -34,9 +34,16 @@ function renderDots(){
 
 let currentPage = 'today';
 
-function renderAll(){
+function renderToday(){
   renderHeader();renderDots();renderProg();renderRules();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner();
-  if(currentPage==='plan') renderJourney();
+}
+
+function renderAll(){
+  renderHeader();
+  if(currentPage==='today') { renderDots();renderProg();renderRules();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner(); }
+  else if(currentPage==='plan') { renderJourney();renderPlanScreen(); }
+  else if(currentPage==='me') { renderStats();renderMeScreen(); }
+  else if(currentPage==='coach') { renderChat(); }
 }
 
 function go(p){
@@ -50,6 +57,7 @@ function go(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.getElementById('page-'+p).classList.add('on');
   document.querySelectorAll('.nbtn').forEach((el,i)=>el.classList.toggle('on',mainRoutes[i]===p));
+  if(p==='today'){renderToday();}
   if(p==='me'){renderStats();renderMeScreen();}
   if(p==='plan'){renderJourney();renderPlanScreen();}
   if(p==='coach'){renderChat();setTimeout(()=>{const i=document.getElementById('chat-input');if(i)i.focus();},100);}

@@ -1,6 +1,12 @@
 // ═══════════════════════════════
 // JOURNEY — grid, detail overlay, day export
 // ═══════════════════════════════
+
+// Lightbox state
+var _lbPhotos=[];   // [{dayN, date, photo, score, total}]
+var _lbIdx=0;
+var _lbTouchX=null;
+
 function renderJourney(){
   if(!document.getElementById('grid75')) return;
   const rs=rules();
@@ -33,7 +39,7 @@ function renderJourney(){
     else if(!entry&&!isPast&&!isTd){badgeCls='empty';badgeTxt='DAG '+dayN;}
 
     if(entry&&entry.photo){
-      h+=`<div class="grid-cell" onclick="openDetail(${dayN})">
+      h+=`<div class="grid-cell" onclick="openLightbox(${dayN})">
         <img src="${entry.photo}" alt="">
         <div class="grid-cell-overlay"><span class="grid-cell-badge ${badgeCls}">${badgeTxt}</span></div>
       </div>`;
@@ -52,6 +58,96 @@ function renderJourney(){
     }
   }
   document.getElementById('grid75').innerHTML=h;
+}
+
+// ─── LIGHTBOX ────────────────────────────────────────────────────────────────
+function _buildLbPhotos(){
+  const rs=rules();
+  const start=startDateObj();
+  const list=[];
+  for(let i=0;i<75;i++){
+    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+    d.setDate(d.getDate()+i);
+    const k=localDate(d);
+    const entry=entryForDate(k);
+    if(entry&&entry.photo){
+      const c=S.checks[k]||{};
+      const dn=rs.filter(r=>c[r.id]).length;
+      list.push({dayN:i+1,date:k,photo:entry.photo,score:dn,total:rs.length});
+    }
+  }
+  return list;
+}
+
+function openLightbox(dayN){
+  _lbPhotos=_buildLbPhotos();
+  if(!_lbPhotos.length)return;
+  _lbIdx=_lbPhotos.findIndex(p=>p.dayN===dayN);
+  if(_lbIdx<0)_lbIdx=0;
+  _renderLb();
+  const ov=document.getElementById('lb-overlay');
+  if(ov)ov.classList.add('open');
+}
+
+function closeLightbox(){
+  const ov=document.getElementById('lb-overlay');
+  if(ov)ov.classList.remove('open');
+}
+
+function lbPrev(){
+  if(_lbIdx>0){_lbIdx--;_renderLb();}
+}
+function lbNext(){
+  if(_lbIdx<_lbPhotos.length-1){_lbIdx++;_renderLb();}
+}
+
+function _renderLb(){
+  const p=_lbPhotos[_lbIdx];
+  if(!p)return;
+  const img=document.getElementById('lb-img');
+  const info=document.getElementById('lb-info');
+  const counter=document.getElementById('lb-counter');
+  const prevBtn=document.getElementById('lb-prev');
+  const nextBtn=document.getElementById('lb-next');
+  if(!img||!info||!counter||!prevBtn||!nextBtn)return;
+
+  img.src=p.photo;
+  info.innerHTML=`<span class="lb-day">DAG ${p.dayN}</span><span class="lb-score">${p.score}/${p.total} wetten</span>`;
+  counter.textContent=(_lbIdx+1)+' / '+_lbPhotos.length;
+  prevBtn.style.visibility=_lbIdx>0?'visible':'hidden';
+  nextBtn.style.visibility=_lbIdx<_lbPhotos.length-1?'visible':'hidden';
+}
+
+function lbOpenDetail(){
+  const p=_lbPhotos[_lbIdx];
+  if(!p)return;
+  closeLightbox();
+  openDetail(p.dayN);
+}
+
+// Touch swipe
+function _lbTouchStart(e){_lbTouchX=e.touches[0].clientX;}
+function _lbTouchEnd(e){
+  if(_lbTouchX===null)return;
+  const dx=e.changedTouches[0].clientX-_lbTouchX;
+  _lbTouchX=null;
+  if(Math.abs(dx)<40)return;
+  if(dx<0)lbNext();else lbPrev();
+}
+
+// Keyboard navigation (only when lightbox is open)
+function _lbKeyDown(e){
+  const ov=document.getElementById('lb-overlay');
+  if(!ov||!ov.classList.contains('open'))return;
+  if(e.key==='ArrowLeft')lbPrev();
+  else if(e.key==='ArrowRight')lbNext();
+  else if(e.key==='Escape')closeLightbox();
+}
+
+// Attach keyboard listener once
+if(!window._lbKeyListenerAttached){
+  document.addEventListener('keydown',_lbKeyDown);
+  window._lbKeyListenerAttached=true;
 }
 
 function openDetail(dayN){

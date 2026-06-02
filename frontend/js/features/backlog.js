@@ -237,12 +237,12 @@ async function doCopy(text){
 }
 
 function markBuiltIssuesDone(){
-  if(!S.backlog) return;
+  if(!S.backlog||S._migratedBuiltIssues) return;
   const builtTitles = ['Praat met Claude tab','Voice journal','PWA notificaties'];
   let changed = false;
-  S.backlog = S.backlog.filter(it=>{
-    if(builtTitles.includes(it.title)){changed = true;return false;}
-    return true;
+  S.backlog.forEach(it=>{
+    if(builtTitles.includes(it.title)&&it.status!=='done'){it.status='done';changed=true;}
   });
+  S._migratedBuiltIssues = true;
   if(changed) save();
 }
