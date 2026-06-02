@@ -46,16 +46,34 @@ function openModal(dayN){
 
 function closeModal(){document.getElementById('modal').classList.add('hidden');}
 
-function handlePic(input){
+function compressImage(file,maxWidth,quality){
+  maxWidth=maxWidth||800;quality=quality||0.75;
+  return new Promise(function(resolve){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const img=new Image();
+      img.onload=function(){
+        const ratio=Math.min(maxWidth/img.width,1);
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.round(img.width*ratio);
+        canvas.height=Math.round(img.height*ratio);
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handlePic(input){
   const f=input.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    picData=e.target.result;
-    const img=document.getElementById('ppreview');
-    img.src=picData;img.classList.remove('hidden');
-    document.getElementById('pzi').style.display='none';
-  };
-  r.readAsDataURL(f);
+  picData=await compressImage(f);
+  const prev=document.getElementById('ppreview');
+  if(!prev)return;
+  prev.src=picData;prev.classList.remove('hidden');
+  const pzi=document.getElementById('pzi');
+  if(pzi)pzi.style.display='none';
 }
 
 function postEntry(){
