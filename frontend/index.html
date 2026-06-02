@@ -290,11 +290,12 @@
     </div>
     <div class="grid75" id="g75"></div>
     <div class="theme-grid" id="theme-grid"></div>
+    <div id="rule-analytics"></div>
     <div class="me-menu">
       <div class="me-item" onclick="openSettings()"><span class="me-item-icon">⚙</span><span class="me-item-label">Instellingen</span><span class="me-item-arrow">›</span></div>
       <div class="me-item" onclick="openSettings();setTimeout(()=>openSubpage('spiegel'),50)"><span class="me-item-icon">🪞</span><span class="me-item-label">Spiegel</span><span class="me-item-arrow">›</span></div>
       <div class="me-item" onclick="openSettings();setTimeout(()=>openSubpage('build'),50)"><span class="me-item-icon">🔧</span><span class="me-item-label">Build Backlog</span><span class="me-item-arrow">›</span></div>
-      <div class="me-item" onclick="API.logout()"><span class="me-item-icon" style="color:var(--red)">→</span><span class="me-item-label">Uitloggen</span><span class="me-item-arrow"></span></div>
+      <div class="me-item" onclick="showConfirm('Uitloggen','Weet je zeker dat je wilt uitloggen?',()=>API.logout())"><span class="me-item-icon" style="color:var(--red)">→</span><span class="me-item-label">Uitloggen</span><span class="me-item-arrow"></span></div>
     </div>
   </div>
 </div>
@@ -438,7 +439,7 @@
         <div class="s-icon">👤</div>
         <div class="s-body"><div class="s-name" id="settings-user-email" style="font-size:12px;font-family:'Roboto Mono',monospace">—</div><div class="s-desc">Ingelogd account</div></div>
       </div>
-      <div class="s-item" onclick="if(confirm('Uitloggen?'))API.logout()">
+      <div class="s-item" onclick="showConfirm('Uitloggen','Weet je zeker dat je wilt uitloggen?',()=>API.logout())">
         <div class="s-icon" style="color:var(--red)">⇥</div>
         <div class="s-body"><div class="s-name" style="color:var(--red)">Uitloggen</div><div class="s-desc">Account verwijderen op dit apparaat</div></div>
         <div class="s-chev">›</div>
