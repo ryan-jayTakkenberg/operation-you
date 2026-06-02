@@ -47,7 +47,8 @@ VANDAAG — DAG ${n} VAN 75:
 - Wetten gehaald: ${done}/${rs.length}
 - Gehaald: ${okRules.join(', ') || 'nog niets'}
 - Nog te doen: ${missRules.join(', ') || 'alles klaar 🔥'}
-${isCasinoDay()?'- Casino-nacht: avondregels tellen niet mee (werk 20:00–05:15)':''}
+${isCasinoDay()?`- ${(S.casinoMode&&S.casinoMode.label)||'Nachtdienst'}: vrijgestelde secties (${((S.casinoMode&&S.casinoMode.exemptSections)||['avond']).map(s=>SECTION_META[s]?SECTION_META[s].name:s).join(', ')}) tellen niet mee vandaag`:''}
+
 ${w.rec!==undefined ? `- Whoop: recovery ${w.rec}%, slaap ${w.slp||'?'}u, strain ${w.str||'?'}/21` : ''}
 
 VOORTGANG TOTAAL:
@@ -82,7 +83,8 @@ function renderChat(){
         <button class="chat-prompt-btn" onclick="sendQuickPrompt('Ik twijfel of ik vandaag moet trainen.')">"Ik twijfel of ik vandaag moet trainen."</button>
         <button class="chat-prompt-btn" onclick="sendQuickPrompt('Net een trade verloren, wil revenge traden.')">"Net een trade verloren, wil revenge traden."</button>
         <button class="chat-prompt-btn" onclick="sendQuickPrompt('Voel me leeg. Geen zin om iets te doen.')">"Voel me leeg. Geen zin om iets te doen."</button>
-        <button class="chat-prompt-btn" onclick="sendQuickPrompt('Hoe ga ik vandaag om met de casino-nacht?')">"Hoe ga ik vandaag om met de casino-nacht?"</button>
+        ${isCasinoDay()?`<button class="chat-prompt-btn" onclick="sendQuickPrompt('Hoe ga ik vandaag om met mijn ${escapeHtml((S.casinoMode&&S.casinoMode.label)||'dienst')}?')">"Hoe ga ik vandaag om met mijn ${escapeHtml((S.casinoMode&&S.casinoMode.label)||'dienst')}?"</button>`:''}
+
       </div>
     </div>`;
     return;

@@ -29,8 +29,9 @@ const API = (() => {
       if (body !== undefined) opts.body = JSON.stringify(body);
       const r = await fetch(BASE + path, opts);
       if (r.status === 401) {
+        const hadToken = !!_token;
         setToken(null);
-        if (typeof showAuth === 'function') showAuth();
+        if (hadToken && typeof showAuth === 'function') showAuth();
         return null;
       }
       if (!r.ok) {
@@ -64,10 +65,14 @@ const API = (() => {
     location.reload();
   }
 
-  // Push full state to server (fire and forget)
+  // Push full state to server — debounced 2s so rapid changes (rule ticks etc.) batch into one request
+  let _syncTimer = null;
   function syncState(state) {
     if (!_token) return;
-    req('POST', '/sync', state).catch(() => {});
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => {
+      req('POST', '/sync', state).catch(() => {});
+    }, 2000);
   }
 
   // Pull full state from server
@@ -102,7 +107,10 @@ const API = (() => {
 
   async function healthCheck() {
     try {
-      const r = await fetch(BASE + '/health');
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 3000);
+      const r = await fetch(BASE + '/health', { signal: ctrl.signal });
+      clearTimeout(t);
       return r.ok;
     } catch { return false; }
   }

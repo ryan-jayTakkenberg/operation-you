@@ -15,11 +15,24 @@ let S = JSON.parse(localStorage.getItem('75h6')||'null') || {
   identity:null,   // {name, manifesto, shadow, rules:[...]}
   startDate:null,  // YYYY-MM-DD
   checks:{}, fails:[], restarts:0, entries:[], whoop:{}, milestones:{},
-  casinoMode:{ enabled:true, days:[5,6] },
+  mood:{},         // {'YYYY-MM-DD': {score, note}}
+  dayQuotes:{},    // {'YYYY-MM-DD': {text, tone, count}}
+  chat:[],         // [{role, content, ts}]
+  notif:null,      // {morning:{enabled,time}, evening:{enabled,time}, lastFired:{}}
+  backlog:[],      // [{id,title,desc,priority,status,notes,createdAt,updatedAt}]
+  casinoMode:{ enabled:true, days:[5,6], label:'Nachtdienst', exemptSections:['avond'] },
   dayInsight:{},
   quickLogs:[]
 };
-if(!S.casinoMode) S.casinoMode = { enabled:true, days:[5,6] };
+// migration guards voor bestaande localStorage-data
+if(!S.mood) S.mood = {};
+if(!S.dayQuotes) S.dayQuotes = {};
+if(!S.chat) S.chat = [];
+if(!S.backlog) S.backlog = [];
+if(!S.notif) S.notif = {morning:{enabled:false,time:'08:00'},evening:{enabled:false,time:'21:00'},lastFired:{}};
+if(!S.casinoMode) S.casinoMode = { enabled:true, days:[5,6], label:'Nachtdienst', exemptSections:['avond'] };
+if(!S.casinoMode.label) S.casinoMode.label = 'Nachtdienst';
+if(!S.casinoMode.exemptSections) S.casinoMode.exemptSections = ['avond'];
 if(!S.dayInsight) S.dayInsight = {};
 if(!S.quickLogs) S.quickLogs = [];
 function save(){
@@ -58,7 +71,8 @@ function todayChecks(){if(!S.checks[today()])S.checks[today()]={};return S.check
 function progress(){
   const c=todayChecks();const rs=rules();
   const casino=typeof isCasinoDay==='function'&&isCasinoDay();
-  const active=casino?rs.filter(r=>r.section!=='avond'):rs;
+  const exempt=S.casinoMode.exemptSections||['avond'];
+  const active=casino?rs.filter(r=>!exempt.includes(r.section)):rs;
   const done=active.filter(r=>c[r.id]).length;
   return{done,total:active.length,casinoNight:casino};
 }

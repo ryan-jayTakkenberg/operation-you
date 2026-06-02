@@ -7,7 +7,7 @@ function escapeHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Casino night check ────────────────────────────────────────
+// ── Werkschema uitzondering check ────────────────────────────────────────
 function isCasinoDay(){
   if(!S.casinoMode||!S.casinoMode.enabled)return false;
   return(S.casinoMode.days||[]).includes(new Date().getDay());
@@ -17,7 +17,9 @@ function isCasinoDay(){
 // Used by journey.js, spiegel.js, coach.js, modal.js, milestones.js, whoop.js
 function buildCoachContext(){
   const p=S.profile||{}, id=S.identity||{};
-  const casinoLine=isCasinoDay()?'\nCasino-nacht: Ja — avondregels tellen niet mee vandaag.':'';
+  const label=(S.casinoMode&&S.casinoMode.label)||'Nachtdienst';
+  const exemptNames=((S.casinoMode&&S.casinoMode.exemptSections)||['avond']).map(s=>SECTION_META[s]?SECTION_META[s].name:s).join(', ');
+  const casinoLine=isCasinoDay()?`\n${label}: Ja — ${exemptNames} regels tellen niet mee vandaag.`:'';
   return `Persoon: ${p.name||'?'}, ${p.age||'?'}.
 Leven: ${(p.daily||'').slice(0,250)}
 Verhaal in 't kort: ${(p.story||'').slice(0,300)}
@@ -66,7 +68,7 @@ function renderDots75(containerId, mode){
       if(k===td) cls='now';
       else if(fail) cls='fail';
       else if(rs.length>0 && done===rs.length) cls='ok';
-      else if(k<td) cls='fail';
+      // else: verleden dag zonder 100% maar geen bewuste fail — blijft grijs (.dd default)
       h+=`<div class="dd ${cls}"></div>`;
     }
   }

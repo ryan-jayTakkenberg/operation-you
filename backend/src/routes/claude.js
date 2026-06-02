@@ -6,12 +6,12 @@ const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
 // Issue #11: Rate limiting op Claude API proxy — voorkomt onverwachte API-kosten door misbruik
 const claudeLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 uur
-  max: 100,                  // max 100 Claude-calls per uur per gebruiker
+  windowMs: 15 * 60 * 1000, // 15 minuten
+  max: 20,                   // max 20 Claude-calls per 15 minuten per gebruiker
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.userId || req.ip, // per gebruiker na auth, anders per IP
-  message: { error: 'API limiet bereikt. Probeer over een uur opnieuw.' },
+  message: { error: 'API limiet bereikt. Probeer over 15 minuten opnieuw.' },
   handler: (req, res, next, options) => {
     console.warn(`[SECURITY] Claude rate limit bereikt voor userId=${req.userId} IP=${req.ip}`);
     res.status(options.statusCode).json(options.message);

@@ -11,6 +11,8 @@ function renderRules(){
   const c=todayChecks();
   const rs=rules();
   const casino=isCasinoDay();
+  const exemptSections=(S.casinoMode&&S.casinoMode.exemptSections)||['avond'];
+  const scheduleLabel=(S.casinoMode&&S.casinoMode.label)||'Nachtdienst';
 
   if(rs.length===0){
     const el=document.getElementById('rlist-ochtend');
@@ -27,15 +29,15 @@ function renderRules(){
       const meta=SECTION_META[secKey];
       const secRules=rs.filter(r=>r.section===secKey);
       if(!secRules.length)return;
-      const exempt=casino&&secKey==='avond';
+      const exempt=casino&&exemptSections.includes(secKey);
       const active=exempt?[]:secRules;
       const sd=active.filter(r=>c[r.id]).length;
       const secTotal=active.length;
       const full=secTotal>0&&sd===secTotal;
-      const secProgTxt=exempt?`<span class="sec-casino-badge">casino</span>`:`${sd}/${secTotal}`;
+      const secProgTxt=exempt?`<span class="sec-casino-badge">${escapeHtml(scheduleLabel.toLowerCase())}</span>`:`${sd}/${secTotal}`;
       h+=`<div class="sec"><span class="sec-name">${meta.name}</span><span class="sec-prog ${full?'full':''}">${secProgTxt}</span></div>`;
       secRules.forEach(r=>{
-        const isExempt=casino&&r.section==='avond';
+        const isExempt=casino&&exemptSections.includes(r.section);
         const done=!isExempt&&c[r.id]?'done':'';
         const hasInfo=r.sub||r.warn;
         h+=`<div class="rule ${done}${isExempt?' casino-exempt':''}" id="rule-${r.id}">
@@ -57,10 +59,12 @@ function renderCasinoBanner(){
   const el=document.getElementById('casino-banner-wrap');
   if(!el)return;
   if(!isCasinoDay()){el.innerHTML='';return;}
-  const avondCount=rules().filter(r=>r.section==='avond').length;
+  const label=(S.casinoMode&&S.casinoMode.label)||'Nachtdienst';
+  const exemptSecs=(S.casinoMode&&S.casinoMode.exemptSections)||['avond'];
+  const exemptCount=rules().filter(r=>exemptSecs.includes(r.section)).length;
   el.innerHTML=`<div class="casino-banner">
-    <span class="casino-banner-ic">🎰</span>
-    <span class="casino-banner-txt">Casino-nacht — ${avondCount} avondregel${avondCount===1?'':'s'} tel${avondCount===1?'t':'len'} niet mee</span>
+    <span class="casino-banner-ic">📅</span>
+    <span class="casino-banner-txt">${escapeHtml(label)} — ${exemptCount} regel${exemptCount===1?'':'s'} tel${exemptCount===1?'t':'len'} niet mee</span>
   </div>`;
 }
 

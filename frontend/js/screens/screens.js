@@ -32,7 +32,12 @@ function renderDots(){
   renderDots75('dot75', 'dots');
 }
 
-function renderAll(){renderHeader();renderDots();renderProg();renderRules();renderJourney();renderSpiegel();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner();}
+let currentPage = 'today';
+
+function renderAll(){
+  renderHeader();renderDots();renderProg();renderRules();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner();
+  if(currentPage==='plan') renderJourney();
+}
 
 function go(p){
   const mainRoutes = ['today','plan','coach','me'];
@@ -41,6 +46,7 @@ function go(p){
   if(subpages[p]){openSettings();setTimeout(()=>openSubpage(subpages[p]),50);return;}
   if(legacyRemap[p]) p = legacyRemap[p];
   if(mainRoutes.indexOf(p) === -1) p = 'today';
+  currentPage = p;
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
   document.getElementById('page-'+p).classList.add('on');
   document.querySelectorAll('.nbtn').forEach((el,i)=>el.classList.toggle('on',mainRoutes[i]===p));
