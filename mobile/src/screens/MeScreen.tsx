@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useStore, today, dayNum, dateForDay, getRules } from '../store/useStore';
+import { useStore, dayNum, dateForDay, getRules } from '../store/useStore';
 import { useTheme } from '../hooks/useTheme';
 import DotGrid from '../components/DotGrid';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -40,7 +40,6 @@ export default function MeScreen() {
   const currentDay = dayNum(startDate);
   const rules = getRules(identity);
   const total = rules.length;
-  const todayStr = today();
 
   const stats = useMemo(() => {
     let streak = 0;

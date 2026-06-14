@@ -9,7 +9,6 @@ import {
   Alert,
   Image,
   ActivityIndicator,
-  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -19,8 +18,6 @@ import type { Identity } from '../store/useStore';
 import { claudeCall, buildCoachContext } from '../api/claude';
 import { useTheme } from '../hooks/useTheme';
 import RuleItem from '../components/RuleItem';
-
-const COLUMNS = 5;
 
 function getDayColor(
   dayIndex: number,

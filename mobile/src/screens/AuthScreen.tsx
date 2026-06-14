@@ -22,7 +22,6 @@ export default function AuthScreen() {
   const colors = useTheme();
   const setToken = useStore((s) => s.setToken);
   const setEmail = useStore((s) => s.setEmail);
-  const setProfile = useStore((s) => s.setProfile);
 
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmailInput] = useState('');

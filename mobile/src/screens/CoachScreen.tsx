@@ -43,7 +43,7 @@ export default function CoachScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   const rules = getRules(identity);
-  const { done, total } = getProgress(identity, checks);
+  const { total } = getProgress(identity, checks);
   const currentDay = dayNum(startDate);
 
   function buildSystemPrompt(): string {
