@@ -34,3 +34,40 @@ export const FONTS = {
   sans: 'InterTight',
   body: 'Inter',
 };
+
+// ─── Evolve design system (handoff: design_handoff_evolve) ────────────────────
+// Vaste premium dark+goud tokens. Staat los van het arctic-themasysteem (COLORS/
+// THEMES) — Evolve-schermen gebruiken deze waarden direct.
+export const EVOLVE = {
+  bg: '#0B0B0D',       // app-achtergrond
+  s0: '#0E0E10',       // diepste surface (AI-inzicht-kaart)
+  s1: '#161618',       // standaard kaart-surface
+  s2: '#1E1E21',       // verhoogd surface (chips, icoon-tegels)
+  line: 'rgba(236,231,220,0.09)',
+  line2: 'rgba(236,231,220,0.05)',
+  ringTrack: 'rgba(236,231,220,0.08)',
+  ink: '#ECE7DC',      // primaire tekst (bone/ivoor)
+  dim: 'rgba(236,231,220,0.56)',
+  faint: 'rgba(236,231,220,0.34)',
+  gold: '#C8A45C',     // signature accent
+  gold2: '#E6CB8E',    // lichtere goud (highlights)
+  goldText: '#0B0B0D', // tekst op goud-vlakken
+  green: '#8FB48A',
+  red: '#C97B6E',
+  // warm goud-verloop voor identiteit/inzicht-kaarten (expo-linear-gradient)
+  warmGrad: ['#221D13', '#15130E'] as const,
+  warmBorder: 'rgba(200,164,92,0.26)',
+  goldGlow: 'rgba(200,164,92,0.5)',
+} as const;
+
+// Evolve font-families (gewicht in de naam, zoals geladen via @expo-google-fonts)
+export const EV_FONTS = {
+  display: 'SpaceGrotesk_600SemiBold',
+  displayMed: 'SpaceGrotesk_500Medium',
+  displayBold: 'SpaceGrotesk_700Bold',
+  body: 'HankenGrotesk_400Regular',
+  bodyMed: 'HankenGrotesk_500Medium',
+  bodySemi: 'HankenGrotesk_600SemiBold',
+  mono: 'JetBrainsMono_500Medium',
+  monoBold: 'JetBrainsMono_700Bold',
+} as const;

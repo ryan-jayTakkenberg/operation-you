@@ -39,6 +39,20 @@ export interface Entry {
   dream?: string;
   photo?: string;
   aiFb?: string;
+  // Journal (Evolve)
+  disc?: number;   // discipline-score 1-10
+  energy?: number; // energie-score 1-10
+  lived?: boolean; // "volgens je wetten geleefd?"
+  proud?: string;  // "waar ben je trots op?"
+  better?: string; // "wat moet morgen beter?"
+}
+
+export interface NotifItem {
+  key: string;
+  label: string;
+  desc: string;
+  time: string; // "HH:MM"
+  on: boolean;
 }
 
 export interface WhoopData {
@@ -65,6 +79,7 @@ export interface AppState {
   token: string | null;
   email: string | null;
   dayQuotes: Record<string, string>;
+  notifs: NotifItem[];
 
   // Actions
   setProfile: (profile: Profile) => void;
@@ -80,6 +95,8 @@ export interface AppState {
   setToken: (token: string | null) => void;
   setEmail: (email: string | null) => void;
   setDayQuote: (date: string, quote: string) => void;
+  toggleNotif: (key: string) => void;
+  setNotifTime: (key: string, time: string) => void;
   addChatMessage: (msg: ChatMessage) => void;
   clearChat: () => void;
   setMilestone: (key: string) => void;
@@ -103,6 +120,13 @@ const initialState = {
   token: null,
   email: null,
   dayQuotes: {},
+  notifs: [
+    { key: 'morning', label: 'Ochtendroutine', desc: 'Start je dag met intentie', time: '06:45', on: true },
+    { key: 'midday', label: 'Middag check-in', desc: 'Hoe staat je dag ervoor?', time: '13:00', on: true },
+    { key: 'evening', label: 'Avond reflectie', desc: 'Tijd om te journalen', time: '21:30', on: true },
+    { key: 'photo', label: 'Progressiefoto', desc: 'Leg je dag vast', time: '20:00', on: true },
+    { key: 'missed', label: 'Gemiste taak', desc: 'Waarschuwing als je achterloopt', time: '22:00', on: false },
+  ] as NotifItem[],
 };
 
 export const useStore = create<AppState>()(
@@ -152,6 +176,16 @@ export const useStore = create<AppState>()(
 
       setDayQuote: (date, quote) =>
         set((state) => ({ dayQuotes: { ...state.dayQuotes, [date]: quote } })),
+
+      toggleNotif: (key) =>
+        set((state) => ({
+          notifs: state.notifs.map((n) => (n.key === key ? { ...n, on: !n.on } : n)),
+        })),
+
+      setNotifTime: (key, time) =>
+        set((state) => ({
+          notifs: state.notifs.map((n) => (n.key === key ? { ...n, time } : n)),
+        })),
 
       addChatMessage: (msg) =>
         set((state) => ({ chat: [...state.chat, msg] })),
@@ -223,4 +257,56 @@ export function getProgress(
   const dayChecks = checks[t] ?? {};
   const done = rules.filter((r) => dayChecks[r.id]).length;
   return { done, total: rules.length };
+}
+
+// Een dag telt als "compleet" wanneer alle wetten zijn afgevinkt.
+function isDayComplete(
+  date: string,
+  rules: Rule[],
+  checks: AppState['checks']
+): boolean {
+  if (!rules.length) return false;
+  const dc = checks[date] ?? {};
+  return rules.every((r) => dc[r.id]);
+}
+
+// Langste aaneengesloten reeks van complete dagen t/m vandaag.
+export function bestStreak(
+  identity: AppState['identity'],
+  checks: AppState['checks'],
+  startDate: string | null
+): number {
+  const rules = getRules(identity);
+  if (!rules.length || !startDate) return 0;
+  const total = dayNum(startDate);
+  let best = 0;
+  let run = 0;
+  for (let n = 1; n <= total; n++) {
+    if (isDayComplete(dateForDay(startDate, n), rules, checks)) {
+      run++;
+      if (run > best) best = run;
+    } else {
+      run = 0;
+    }
+  }
+  return best;
+}
+
+// Gemiddelde naleving (%) over de verstreken dagen.
+export function avgCompliance(
+  identity: AppState['identity'],
+  checks: AppState['checks'],
+  startDate: string | null
+): number {
+  const rules = getRules(identity);
+  if (!rules.length || !startDate) return 0;
+  const total = dayNum(startDate);
+  if (total <= 0) return 0;
+  let sum = 0;
+  for (let n = 1; n <= total; n++) {
+    const dc = checks[dateForDay(startDate, n)] ?? {};
+    const done = rules.filter((r) => dc[r.id]).length;
+    sum += done / rules.length;
+  }
+  return Math.round((sum / total) * 100);
 }

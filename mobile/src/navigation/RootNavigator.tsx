@@ -4,12 +4,14 @@ import AuthScreen from '../screens/AuthScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import MainTabs from './MainTabs';
 import SettingsScreen from '../screens/SettingsScreen';
+import MeldingenScreen from '../screens/MeldingenScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
   Onboarding: undefined;
   MainTabs: undefined;
   Settings: undefined;
+  Meldingen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -35,6 +37,7 @@ export default function RootNavigator() {
             component={SettingsScreen}
             options={{ headerShown: true, title: 'Instellingen', headerStyle: { backgroundColor: '#08090c' }, headerTintColor: '#f4f7fb' }}
           />
+          <Stack.Screen name="Meldingen" component={MeldingenScreen} />
         </>
       )}
     </Stack.Navigator>

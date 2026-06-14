@@ -111,6 +111,10 @@ export default function OnboardingScreen() {
     }
   }
 
+  function handleBack() {
+    setStep((s) => Math.max(0, s - 1));
+  }
+
   async function generateIdentity() {
     const profile: Profile = {
       name: name.trim(),
@@ -323,9 +327,10 @@ Dag-75 visie: ${profile.goal}`;
   }
 
   // Steps 1-7 — Form questions
+  // Stap 1 (isTwoFields) verzamelt naam + leeftijd samen. De rest van de stappen
+  // (2-7) mapt op stepIndex = step - 1 → daily, energy, story, strengths, weak, goal.
   const questions: Array<{ label: string; placeholder: string; value: string; setter: (v: string) => void; multiline?: boolean; keyboardType?: 'default' | 'numeric' }> = [
     { label: 'Wat is je naam en leeftijd?', placeholder: 'Naam...', value: name, setter: setName },
-    { label: 'Leeftijd', placeholder: '21', value: age, setter: setAge, keyboardType: 'numeric' },
     { label: 'Beschrijf je dagelijks leven', placeholder: 'Wat doe je dagelijks? School, werk, sport...', value: daily, setter: setDaily, multiline: true },
     { label: 'Hoe is je energieniveau doorgaans?', placeholder: 'Hoog, laag, wisselend... wanneer piekt je energie?', value: energy, setter: setEnergy, multiline: true },
     { label: 'Vertel je verhaal', placeholder: 'Wat heeft je hierheen geleid? Wat wil je veranderen?', value: story, setter: setStory, multiline: true },
@@ -349,6 +354,10 @@ Dag-75 visie: ${profile.goal}`;
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          <TouchableOpacity onPress={handleBack} style={styles.backBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.backText}>‹ Terug</Text>
+          </TouchableOpacity>
+
           {renderDots()}
 
           {isTwoFields ? (
@@ -452,6 +461,17 @@ function makeStyles(colors: ReturnType<typeof useTheme>) {
       fontWeight: '800',
       color: '#08090c',
       letterSpacing: 2,
+    },
+    backBtn: {
+      alignSelf: 'flex-start',
+      paddingVertical: 4,
+      marginBottom: 16,
+    },
+    backText: {
+      color: '#7a8395',
+      fontSize: 14,
+      fontWeight: '600',
+      letterSpacing: 1,
     },
     dots: {
       flexDirection: 'row',
