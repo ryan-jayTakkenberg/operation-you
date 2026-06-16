@@ -2,7 +2,7 @@ import API from './client';
 import type { Profile, Identity } from '../store/useStore';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-3-5-haiku-20241022';
+const DEFAULT_MODEL = 'claude-haiku-4-5';
 const DEFAULT_MAX_TOKENS = 1024;
 
 export function buildCoachContext(profile: Profile | null, identity: Identity | null): string {
@@ -74,15 +74,17 @@ export async function claudeCall(
     // fall through to direct
   }
 
-  // 2. Fallback: direct Anthropic API with user's API key
-  if (!apiKey) return null;
+  // 2. Fallback: direct Anthropic API with user's API key.
+  //    Key komt van de store (options.apiKey), anders uit .env (EXPO_PUBLIC_ANTHROPIC_API_KEY).
+  const effectiveKey = apiKey || process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
+  if (!effectiveKey) return null;
 
   try {
     const res = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        'x-api-key': effectiveKey,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true',
       },

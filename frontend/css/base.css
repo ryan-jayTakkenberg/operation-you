@@ -1,4 +1,19 @@
-:root{--bg:#08090c;--bg2:#10131a;--bg3:#1a1e28;--bg4:#252b38;--bg5:#323a4a;--line:rgba(255,255,255,0.06);--line2:rgba(255,255,255,0.14);--text:#f4f7fb;--muted:#7a8395;--dim:#4a5363;--ac:#5ef0ff;--ac-strong:#7df5ff;--ac-dim:rgba(94,240,255,0.12);--ac-glow:rgba(94,240,255,0.22);--ac-rgb:94,240,255;--red:#ff7a85;--green:#5ee3a5;--gold:#ffe14d;--blue:#60a5fa;--orange:#fb923c;--mono:'JetBrains Mono','Roboto Mono',monospace;--sans:'Inter Tight','Inter',system-ui,sans-serif;--body-font:'Inter',system-ui,sans-serif;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px)}
+:root{
+/* ── EVOLVE design system — premium dark + goud (handoff: design_handoff_evolve) ── */
+--bg:#0B0B0D;--bg2:#161618;--bg3:#1E1E21;--bg4:#262629;--bg5:#33312f;
+--s0:#0E0E10;/* diepste surface — AI-inzicht-kaart */
+--line:rgba(236,231,220,0.09);--line2:rgba(236,231,220,0.14);
+--text:#ECE7DC;--muted:rgba(236,231,220,0.56);--dim:rgba(236,231,220,0.34);
+--ac:#C8A45C;--ac-strong:#E6CB8E;--ac-hot:#E6CB8E;--ac-dim:rgba(200,164,92,0.12);--ac-glow:rgba(200,164,92,0.22);--ac-rgb:200,164,92;
+--gold:#C8A45C;--gold2:#E6CB8E;--gold-rgb:200,164,92;
+--red:#C97B6E;--red-rgb:201,123,110;
+--green:#8FB48A;--blue:#8AA9C8;--orange:#C9925A;
+/* warm goud-verloop voor identiteit/inzicht-kaarten */
+--warm-grad:linear-gradient(135deg,#221D13 0%,#15130E 100%);--warm-border:rgba(200,164,92,0.26);
+--mono:'JetBrains Mono','Roboto Mono',monospace;
+--sans:'Space Grotesk','Inter Tight',system-ui,sans-serif;
+--body-font:'Hanken Grotesk','Inter',system-ui,sans-serif;
+--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--body-font);overflow:hidden}
 .app,.onb{position:relative;z-index:2}

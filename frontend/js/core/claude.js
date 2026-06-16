@@ -2,6 +2,11 @@
 // API KEY & CLAUDE CALL
 // ═══════════════════════════════
 function getApiKey(){
+  // Lokale dev-override: js/config.local.js (gitignored) kan window.LOCAL_API_KEY zetten.
+  // Werkt als een .env voor deze no-build app — blijft lokaal, wordt nooit gecommit/gedeployed.
+  if(typeof window !== 'undefined' && window.LOCAL_API_KEY){
+    return window.LOCAL_API_KEY;
+  }
   return localStorage.getItem('75h_apikey') || '';
 }
 
@@ -55,7 +60,7 @@ async function claudeCall(messages, options){
     'anthropic-dangerous-direct-browser-access': 'true'
   };
   const body = {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: options.maxTokens || 1000,
     messages: messages
   };

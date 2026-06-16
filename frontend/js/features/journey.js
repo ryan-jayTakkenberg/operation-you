@@ -46,7 +46,7 @@ function renderJourney(){
     } else {
       let bg='var(--bg3)',numColor='var(--dim)';
       if(isTd){bg='rgba(234,88,12,0.10)';numColor='var(--ac)';}
-      else if(fail||isPast&&dn<rs.length){bg='rgba(168,58,42,0.06)';}
+      else if(fail||isPast&&dn<rs.length){bg='rgba(var(--red-rgb),0.06)';}
       else if(rs.length>0&&dn===rs.length){bg='rgba(234,88,12,0.08)';}
       h+=`<div class="grid-cell" onclick="openDetail(${dayN})" style="background:${bg}">
         <div class="grid-cell-empty">
@@ -174,7 +174,7 @@ function openDetail(dayN){
   const dateObj=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
   const dateStr=dateObj.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const grade=getDayGrade(date);
-  h+=`<div class="detail-meta"><div class="detail-daynum">DAG ${dayN}</div><div style="display:flex;align-items:center;gap:10px"><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:26px;font-weight:800;color:${gradeColor(grade)}">${grade}</div><div class="detail-date">${dateStr}</div></div></div>`;
+  h+=`<div class="detail-meta"><div class="detail-daynum">DAG ${dayN}</div><div style="display:flex;align-items:center;gap:10px"><div style="font-family:var(--mono);font-size:26px;font-weight:800;color:${gradeColor(grade)}">${grade}</div><div class="detail-date">${dateStr}</div></div></div>`;
 
   if(entry&&entry.dream)h+=`<div class="detail-txt">${escapeHtml(entry.dream)}</div>`;
   if(entry&&entry.note)h+=`<div class="detail-note">${escapeHtml(entry.note)}</div>`;

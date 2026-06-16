@@ -248,8 +248,8 @@ Lever GEEN tekst voor of na de JSON. Alleen de JSON.`;
       <div style="font-size:48px;margin-bottom:20px">⚠</div>
       <div class="load-title" style="color:var(--red)">Kon je wetten niet bouwen</div>
       <div style="font-size:14px;color:var(--muted);line-height:1.6;font-weight:300;max-width:300px;margin-top:14px;text-align:center">${(e&&e.message)||'Verbinding met Claude lukt nu niet.'}</div>
-      <button onclick="generateIdentity(0)" style="margin-top:24px;padding:12px 24px;background:var(--ac);color:#000;font-family:'Courier Prime','Roboto Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;border:none;border-radius:2px;cursor:pointer;text-transform:uppercase">Probeer opnieuw</button>
-      <button onclick="onbStep=7;renderOnbStep()" style="margin-top:10px;padding:10px 20px;background:none;border:1px solid var(--line2);color:var(--muted);font-family:'Courier Prime','Roboto Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;border-radius:2px;cursor:pointer;text-transform:uppercase">Terug</button>
+      <button onclick="generateIdentity(0)" style="margin-top:24px;padding:12px 24px;background:var(--ac);color:#000;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.1em;border:none;border-radius:2px;cursor:pointer;text-transform:uppercase">Probeer opnieuw</button>
+      <button onclick="onbStep=7;renderOnbStep()" style="margin-top:10px;padding:10px 20px;background:none;border:1px solid var(--line2);color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;border-radius:2px;cursor:pointer;text-transform:uppercase">Terug</button>
     `;
   }
 }

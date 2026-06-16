@@ -85,7 +85,7 @@ const API = (() => {
   async function claude(messages, options) {
     options = options || {};
     const body = {
-      model: options.model || 'claude-sonnet-4-20250514',
+      model: options.model || 'claude-sonnet-4-6',
       max_tokens: options.maxTokens || 1000,
       messages
     };

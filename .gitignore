@@ -3,3 +3,9 @@ backend/data/
 backend/.env
 .DS_Store
 *.db
+
+# Secrets — nooit committen
+.env
+mobile/.env
+# Web no-build .env-vervanging (auto-gegenereerd door scripts/sync-keys.sh)
+frontend/js/config.local.js

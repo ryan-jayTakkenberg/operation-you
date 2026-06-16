@@ -114,7 +114,7 @@ async function weekReview(){
   const el=document.getElementById('review-result');
   el.style.display='block';
   el.innerHTML=`<div class="review-result">
-    <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Week review wordt geschreven…</div></div>
+    <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Week review wordt geschreven…</div></div>
     <div class="review-body">Claude analyseert je laatste 7 dagen…</div>
   </div>`;
   el.scrollIntoView({behavior:'smooth',block:'start'});
@@ -164,7 +164,7 @@ Schrijf scherp, direct, in zijn/haar taal. Spreek 'je' aan. Nederlands. Geen mar
     const txt=data.content?.[0]?.text||'Kon niet laden.';
     const weekNum=Math.ceil(dayNum()/7);
     el.innerHTML=`<div class="review-result">
-      <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Week ${weekNum} — Claude review</div></div>
+      <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Week ${weekNum} — Claude review</div></div>
       <div class="review-body">${escapeHtml(txt)}</div>
     </div>`;
   }catch(e){
@@ -176,7 +176,7 @@ async function growthCheck(){
   const el=document.getElementById('review-result');
   el.style.display='block';
   el.innerHTML=`<div class="review-result">
-    <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Groei-check wordt geschreven…</div></div>
+    <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Groei-check wordt geschreven…</div></div>
     <div class="review-body">Claude vergelijkt jouw dag 1 met nu…</div>
   </div>`;
   el.scrollIntoView({behavior:'smooth',block:'start'});
@@ -202,7 +202,7 @@ Nederlands. Direct. 'Je' aanspreken. Geen markdown.`;
     const data=await claudeCall([{role:'user',content:prompt}],{maxTokens:800});
     const txt=data.content?.[0]?.text||'Kon niet laden.';
     el.innerHTML=`<div class="review-result">
-      <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Groei-check — Dag ${n}</div></div>
+      <div class="review-result-top"><div class="ai-pulse"></div><div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ac);text-transform:uppercase">Groei-check — Dag ${n}</div></div>
       <div class="review-body">${escapeHtml(txt)}</div>
     </div>`;
   }catch(e){

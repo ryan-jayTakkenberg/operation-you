@@ -37,7 +37,7 @@ De gebruiker wil dat de app hem dwingt om dagelijks dingen te doen waar hij bete
 - `index.html` — de complete app (~210k chars, ~3800 lines)
 - Alles in localStorage onder key `75h6` (legacy naam, niet doorbreken)
 - AI calls direct van browser naar `api.anthropic.com/v1/messages`
-- Model: `claude-sonnet-4-20250514`
+- Model: `claude-sonnet-4-6`
 - API key: of via Claude.ai runtime (auto-injected), of user brengt eigen key mee (Stats → ⚙ → API key, opgeslagen in `localStorage['75h_apikey']`)
 
 Waarom geen framework: simpelheid, geen build-stap, hosting waar dan ook werkt, gebruiker kan zelf code begrijpen.

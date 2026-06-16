@@ -28,16 +28,16 @@ function openModal(dayN){
   const w=S.whoop[targetDate]||{};
   const hasWhoop=w.rec!==undefined||w.slp!==undefined||w.str!==undefined;
 
-  let summary=`<div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Automatisch meegenomen</div>`;
+  let summary=`<div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Automatisch meegenomen</div>`;
   summary+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:${hasWhoop?'10px':'0'}">
-    <div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:28px;font-weight:800;color:${done===total&&total>0?'var(--ac)':done>0?'var(--orange)':'var(--red)'}">${done}/${total}</div>
+    <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:${done===total&&total>0?'var(--ac)':done>0?'var(--orange)':'var(--red)'}">${done}/${total}</div>
     <div style="font-size:12px;color:var(--muted);font-weight:300">wetten voltooid${done===total&&total>0?' 🔥':''}<br><span style="font-size:11px;color:var(--dim)">Vink op de Vandaag pagina</span></div>
   </div>`;
   if(hasWhoop){
     summary+=`<div style="display:flex;gap:14px;padding-top:8px;border-top:1px solid var(--line)">
-      ${w.rec!==undefined?`<div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:18px;font-weight:700;color:#4a6b35">${w.rec}%</div><div style="font-size:10px;color:var(--muted)">Recovery</div></div>`:''}
-      ${w.slp!==undefined?`<div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:18px;font-weight:700;color:#2b4d72">${w.slp}u</div><div style="font-size:10px;color:var(--muted)">Slaap</div></div>`:''}
-      ${w.str!==undefined?`<div><div style="font-family:'Courier Prime','Roboto Mono',monospace;font-size:18px;font-weight:700;color:#a06628">${w.str}/21</div><div style="font-size:10px;color:var(--muted)">Strain</div></div>`:''}
+      ${w.rec!==undefined?`<div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green)">${w.rec}%</div><div style="font-size:10px;color:var(--muted)">Recovery</div></div>`:''}
+      ${w.slp!==undefined?`<div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--blue)">${w.slp}u</div><div style="font-size:10px;color:var(--muted)">Slaap</div></div>`:''}
+      ${w.str!==undefined?`<div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--orange)">${w.str}/21</div><div style="font-size:10px;color:var(--muted)">Strain</div></div>`:''}
     </div>`;
   }
   document.getElementById('modal-auto-summary').innerHTML=summary;

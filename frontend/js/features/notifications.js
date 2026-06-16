@@ -127,7 +127,7 @@ function sendTestNotif(){
     const n = new Notification('OPERATION YOU — Test', {
       body: 'Notificaties werken. Vandaag is dag '+dayNum()+' van 75.',
       tag: 'oy-test',
-      icon: 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 180 180\'><rect width=\'180\' height=\'180\' fill=\'%23ebe6d8\'/><text x=\'50%25\' y=\'54%25\' font-family=\'Courier New,monospace\' font-weight=\'900\' font-size=\'72\' text-anchor=\'middle\' dominant-baseline=\'middle\' fill=\'%231a1a1a\'>OY</text></svg>'
+      icon: 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 180 180\'><rect width=\'180\' height=\'180\' fill=\'%230B0B0D\'/><text x=\'50%25\' y=\'54%25\' font-family=\'Courier New,monospace\' font-weight=\'900\' font-size=\'72\' text-anchor=\'middle\' dominant-baseline=\'middle\' fill=\'%23C8A45C\'>OY</text></svg>'
     });
     n.onclick = ()=>{window.focus();n.close();};
   } catch(e){

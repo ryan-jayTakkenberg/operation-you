@@ -118,9 +118,9 @@ function getDayGrade(date){
 
 function gradeColor(g){
   if(g==='A+'||g==='A')return'var(--ac)';
-  if(g==='B')return'#4a6b35';
+  if(g==='B')return'var(--green)';
   if(g==='C')return'var(--orange)';
-  if(g==='D')return'#a06628';
+  if(g==='D')return'var(--orange)';
   if(g==='—')return'var(--dim)';
   return'var(--red)';
 }
