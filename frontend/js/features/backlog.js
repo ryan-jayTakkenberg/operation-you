@@ -244,5 +244,5 @@ function markBuiltIssuesDone(){
     if(builtTitles.includes(it.title)&&it.status!=='done'){it.status='done';changed=true;}
   });
   S._migratedBuiltIssues = true;
-  if(changed) save();
+  save();
 }
