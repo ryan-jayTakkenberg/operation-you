@@ -60,6 +60,19 @@ export const EVOLVE = {
   goldGlow: 'rgba(200,164,92,0.5)',
 } as const;
 
+// Accent-thema's voor Evolve. Alleen het signature-accent (gold/gold2) wisselt;
+// surfaces, ink en lijnen blijven het vaste dark-charcoal palet. 'evolve' (goud) is
+// de default. Gelezen via de useEvolve()-hook → app-breed reactief.
+export const EVOLVE_THEMES = [
+  { id: 'evolve', name: 'Evolve', gold: '#C8A45C', gold2: '#E6CB8E', rgb: '200,164,92' },
+  { id: 'arctic', name: 'Arctic', gold: '#5EF0FF', gold2: '#7DF5FF', rgb: '94,240,255' },
+  { id: 'solar',  name: 'Solar',  gold: '#FF8A3D', gold2: '#FFAA6D', rgb: '255,138,61' },
+  { id: 'plasma', name: 'Plasma', gold: '#FF4DD2', gold2: '#FF7DE0', rgb: '255,77,210' },
+  { id: 'forest', name: 'Forest', gold: '#7DD87D', gold2: '#A3E8A3', rgb: '125,216,125' },
+  { id: 'volt',   name: 'Volt',   gold: '#FFE14D', gold2: '#FFED80', rgb: '255,225,77' },
+  { id: 'coral',  name: 'Coral',  gold: '#FF6363', gold2: '#FF8B8B', rgb: '255,99,99' },
+] as const;
+
 // Evolve font-families (gewicht in de naam, zoals geladen via @expo-google-fonts)
 export const EV_FONTS = {
   display: 'SpaceGrotesk_600SemiBold',

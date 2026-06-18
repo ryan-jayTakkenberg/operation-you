@@ -1,104 +1,196 @@
 // ═══════════════════════════════
 // STATS — streak, grid, grades
 // ═══════════════════════════════
+// Huidige reeks: aaneengesloten complete dagen eindigend op vandaag of gisteren
+// (vandaag mag nog niet af zijn). Zelfde semantiek als mobile currentStreak.
 function calcStreak(){
-  let streak=0;
   const rs=rules();
-  if(!rs.length)return 0;
-  for(let i=dayNum()-2;i>=0;i--){
-    const start=startDateObj();
-    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
-    d.setDate(d.getDate()+i);
-    const k=localDate(d);
-    const c=S.checks[k]||{};
-    if(rs.filter(r=>c[r.id]).length===rs.length)streak++;
-    else break;
-  }
-  return streak;
+  if(!rs.length||!S.startDate)return 0;
+  const total=dayNum();
+  const isComplete=(n)=>{const dc=S.checks[dateForDay(n)]||{};return rs.every(r=>dc[r.id]);};
+  let n=total;
+  if(!isComplete(n))n--;
+  let run=0;
+  while(n>=1&&isComplete(n)){run++;n--;}
+  return run;
 }
+
+// Area-chart als SVG-string (parity met mobile AreaChart). Waarden 0-100.
+function areaChartSVG(values,color){
+  const W=100,H=100;
+  if(!values.length)return `<div class="v-chart-empty">Nog geen data</div>`;
+  const clamp=v=>Math.max(0,Math.min(100,isFinite(v)?v:0));
+  const rnd=n=>Math.round(n*100)/100;
+  let coords;
+  if(values.length===1){const y=H-clamp(values[0])/100*H;coords=[{x:0,y},{x:W,y}];}
+  else coords=values.map((v,i)=>({x:i/(values.length-1)*W,y:H-clamp(v)/100*H}));
+  const line=coords.map(c=>`${rnd(c.x)},${rnd(c.y)}`).join(' ');
+  const first=coords[0],last=coords[coords.length-1];
+  const area=`${line} ${rnd(last.x)},${H} ${rnd(first.x)},${H}`;
+  const fill=color==='var(--green)'?'rgba(143,180,138,0.12)':'rgba(200,164,92,0.12)';
+  return `<svg class="v-chart-svg" width="100%" height="100" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <polygon points="${area}" fill="${fill}"/>
+    <polyline points="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${rnd(last.x)}" cy="${rnd(last.y)}" r="3" fill="${color}" stroke="var(--bg)" stroke-width="1"/>
+  </svg>`;
+}
+
+function vBarColor(pct){if(pct>=75)return'var(--green)';if(pct<55)return'var(--red)';return'var(--gold)';}
 
 function renderStats(){
-  if(!document.getElementById('g75')) return;
-  const td=today();let h='';
-  const start=startDateObj();
+  const host=document.getElementById('voortgang-stats');
+  if(!host)return;
   const rs=rules();
-  for(let i=0;i<75;i++){
-    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
-    d.setDate(d.getDate()+i);
-    const k=localDate(d);
-    const c=S.checks[k]||{};
-    const done=rs.filter(r=>c[r.id]).length;
-    const fail=S.fails.find(f=>f.date===k);
-    let cls='';
-    if(k===td)cls='now';else if(fail)cls='fail';else if(rs.length>0&&done===rs.length)cls='ok';
-    h+=`<div class="g75 ${cls}">${i+1}</div>`;
+  const td=today();
+  const elapsed=S.startDate?dayNum():0;
+
+  const streak=calcStreak();
+  const avg=avgComplianceWeb();
+  let voltooid=0;
+  Object.values(S.checks).forEach(v=>{if(rs.length&&rs.every(r=>v[r.id]))voltooid++;});
+
+  // Voltooiing per dag — laatste 30 dagen
+  const compSeries=[];
+  if(S.startDate&&rs.length&&elapsed>0){
+    const startN=Math.max(1,elapsed-29);
+    for(let n=startN;n<=elapsed;n++){
+      const dc=S.checks[dateForDay(n)]||{};
+      compSeries.push(rs.filter(r=>dc[r.id]).length/rs.length*100);
+    }
   }
-  document.getElementById('g75').innerHTML=h;
-  let totalDone=0;
-  Object.entries(S.checks).forEach(([k,v])=>{if(rs.length>0&&rs.filter(r=>v[r.id]).length===rs.length)totalDone++;});
-  document.getElementById('ss-done').textContent=totalDone;
-  document.getElementById('ss-str').textContent=calcStreak();
-  document.getElementById('ss-rst').textContent=S.restarts;
-  renderRuleAnalytics();
+  const lastC=compSeries.length?compSeries[compSeries.length-1]:0;
+  const prevC=compSeries.length>1?compSeries[compSeries.length-2]:lastC;
+  const compDelta=Math.round(lastC-prevC);
+
+  // Per categorie — gemiddelde naleving per sectie over verstreken dagen
+  const present=[...new Set(rs.map(r=>r.section))];
+  const ordered=SECTION_ORDER.filter(k=>present.includes(k)).concat(present.filter(k=>!SECTION_ORDER.includes(k)));
+  const cats=ordered.map(key=>{
+    const meta=SECTION_META[key]||{icon:'•',name:key};
+    const secRules=rs.filter(r=>r.section===key);
+    let pct=0;
+    if(secRules.length&&S.startDate&&elapsed>0){
+      let sum=0;
+      for(let n=1;n<=elapsed;n++){
+        const dc=S.checks[dateForDay(n)]||{};
+        sum+=secRules.filter(r=>dc[r.id]).length/secRules.length;
+      }
+      pct=Math.round(sum/elapsed*100);
+    }
+    return{icon:meta.icon,label:meta.name,pct};
+  });
+  let strongest=null,weakest=null;
+  if(cats.length){strongest=cats.reduce((a,b)=>b.pct>a.pct?b:a);weakest=cats.reduce((a,b)=>b.pct<a.pct?b:a);}
+
+  // Stemming-trend — laatste 14 dagen (web mood 1-5 → 0-100%)
+  const moodSeries=[];
+  if(S.startDate&&elapsed>0){
+    const startN=Math.max(1,elapsed-13);
+    for(let n=startN;n<=elapsed;n++){
+      const m=S.mood&&S.mood[dateForDay(n)];
+      const val=(typeof m==='object'&&m)?m.score:m;
+      if(val===undefined||val===null)continue;
+      moodSeries.push((val-1)/4*100);
+    }
+  }
+
+  // 75-dagen grid
+  let dots='';
+  for(let i=0;i<75;i++){
+    const date=dateForDay(i+1);
+    let cls='future';
+    if(date<td){
+      if(S.fails.find(f=>f.date===date))cls='fail';
+      else if(rs.length){
+        const done=rs.filter(r=>(S.checks[date]||{})[r.id]).length;
+        cls=done===0?'zero':done<rs.length?'partial':'full';
+      }
+    }else if(date===td){cls='today';}
+    dots+=`<div class="v-dot ${cls}"></div>`;
+  }
+
+  // Wet-analyse — naleving per wet over verstreken dagen (excl. vandaag)
+  let wetCard='';
+  const hits={};let pastDays=0;
+  for(let n=1;n<=elapsed;n++){
+    const date=dateForDay(n);
+    if(date>=td)continue;
+    pastDays++;
+    const dc=S.checks[date]||{};
+    rs.forEach(r=>{hits[r.id]=(hits[r.id]||0)+(dc[r.id]?1:0);});
+  }
+  if(rs.length&&pastDays>0){
+    const rated=rs.map(r=>({r,pct:Math.round((hits[r.id]||0)/pastDays*100)})).sort((a,b)=>a.pct-b.pct);
+    const wk=rated.slice(0,3),st=rated.slice(-3).reverse();
+    const row=(o,mark,color)=>`<div class="v-rule-row">
+      <span class="v-rule-mark" style="color:${color}">${mark}</span>
+      <span class="v-rule-name">${escapeHtml(o.r.name)}</span>
+      <span class="v-rule-track"><span class="v-rule-fill" style="width:${o.pct}%;background:${color}"></span></span>
+      <span class="v-rule-pct" style="color:${color}">${o.pct}%</span>
+    </div>`;
+    wetCard=`<div class="v-card">
+      <div class="v-card-head"><div class="v-card-title">Wet-analyse</div><div class="v-card-meta faint">${pastDays} dag${pastDays===1?'':'en'}</div></div>
+      <div class="v-subhead weak">Zwakste wetten</div>
+      ${wk.map(o=>row(o,'✗','var(--gold)')).join('')}
+      <div class="v-subhead strong">Sterkste wetten</div>
+      ${st.map(o=>row(o,'✓','var(--green)')).join('')}
+    </div>`;
+  }
+
+  const insightText=(S.identity&&S.identity.shadow)||'Bouw je geschiedenis op — na een paar dagen zie je hier je patronen.';
+
+  host.innerHTML=`
+    <div class="v-header">
+      <div class="v-title">Voortgang</div>
+      <div class="v-sub">Je groei over 75 dagen.</div>
+    </div>
+
+    <div class="v-tiles">
+      <div class="v-tile"><div class="v-tile-eyebrow">Huidige reeks</div><div class="v-tile-num">${streak}<span class="v-tile-unit"> dgn</span></div></div>
+      <div class="v-tile"><div class="v-tile-eyebrow">Gem. naleving</div><div class="v-tile-num green">${avg}<span class="v-tile-unit">%</span></div></div>
+      <div class="v-tile"><div class="v-tile-eyebrow">Dagen voltooid</div><div class="v-tile-num">${voltooid}</div></div>
+      <div class="v-tile"><div class="v-tile-eyebrow">Herstarts</div><div class="v-tile-num">${S.restarts||0}</div></div>
+    </div>
+
+    <div class="v-card">
+      <div class="v-card-head"><div class="v-card-title">Voltooiing per dag</div><div class="v-card-meta ${compDelta<0?'red':''}">${compDelta>=0?'+':''}${compDelta}% vs gisteren</div></div>
+      ${areaChartSVG(compSeries,'var(--gold)')}
+    </div>
+
+    <div class="v-card">
+      <div class="v-card-head"><div class="v-card-title">Per categorie</div></div>
+      ${cats.length&&strongest&&weakest?`<div class="v-cat-summary">Sterkste: <b style="color:var(--green)">${escapeHtml(strongest.label)}</b> · Zwakste: <b style="color:var(--red)">${escapeHtml(weakest.label)}</b></div>`:`<div class="v-cat-summary">Nog geen categorieën om te tonen.</div>`}
+      <div class="v-bars">
+        ${cats.map(c=>{const col=vBarColor(c.pct);return `<div class="v-bar-row">
+          <span class="v-bar-label">${c.icon} ${escapeHtml(c.label)}</span>
+          <span class="v-bar-track"><span class="v-bar-fill" style="width:${Math.max(0,Math.min(100,c.pct))}%;background:${col}"></span></span>
+          <span class="v-bar-pct" style="color:${col}">${c.pct}%</span>
+        </div>`;}).join('')}
+      </div>
+    </div>
+
+    <div class="v-card">
+      <div class="v-card-head"><div class="v-card-title">Stemming-trend</div><div class="v-card-meta faint">2 weken</div></div>
+      ${areaChartSVG(moodSeries,'var(--green)')}
+    </div>
+
+    <div class="v-card">
+      <div class="v-card-head"><div class="v-card-title">75 dagen</div></div>
+      <div class="v-grid">${dots}</div>
+    </div>
+
+    ${wetCard}
+
+    <div class="v-insight">
+      <div class="v-insight-badge"><span class="v-insight-dot"></span></div>
+      <div style="flex:1;min-width:0">
+        <div class="v-insight-eyebrow">AI-inzicht</div>
+        <div class="v-insight-text">${escapeHtml(insightText)}</div>
+      </div>
+    </div>`;
 }
 
-function renderRuleAnalytics(){
-  const el=document.getElementById('rule-analytics');
-  if(!el)return;
-  if(!S.identity){el.innerHTML='';return;}
-  const rs=rules();
-  if(!rs.length||!S.startDate){el.innerHTML='';return;}
-  const start=startDateObj();
-  const now=new Date();
-  // collect hit counts per rule over elapsed days (excluding today)
-  const hits={};
-  const days=[];
-  for(let i=0;i<75;i++){
-    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
-    d.setDate(d.getDate()+i);
-    if(d>=now)break;
-    const k=localDate(d);
-    days.push(k);
-    const c=S.checks[k]||{};
-    rs.forEach(r=>{
-      if(!hits[r.id])hits[r.id]=0;
-      if(c[r.id])hits[r.id]++;
-    });
-  }
-  const total=days.length;
-  if(!total){el.innerHTML='';return;}
-  // only include rules that had at least one opportunity (all rules qualify once total>0)
-  const rated=rs.map(r=>({r,pct:Math.round((hits[r.id]||0)/total*100),count:hits[r.id]||0}));
-  rated.sort((a,b)=>a.pct-b.pct);
-  const weakest=rated.slice(0,3);
-  const strongest=rated.slice(-3).reverse();
-  const weakRow=({r,pct,count})=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line2)">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--ac);flex-shrink:0;font-weight:700">✗</div>
-      <div style="flex:1;font-size:11px;font-family:var(--mono);color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em">${escapeHtml(r.name)}</div>
-      <div style="width:72px;height:3px;background:var(--bg4);flex-shrink:0">
-        <div style="width:${pct}%;height:100%;background:var(--ac)"></div>
-      </div>
-      <div style="width:34px;text-align:right;font-size:11px;font-family:var(--mono);color:var(--ac);flex-shrink:0;font-weight:600">${pct}%</div>
-    </div>`;
-  const strongRow=({r,pct,count})=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line2)">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--green);flex-shrink:0;font-weight:700">✓</div>
-      <div style="flex:1;font-size:11px;font-family:var(--mono);color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em">${escapeHtml(r.name)}</div>
-      <div style="width:72px;height:3px;background:var(--bg4);flex-shrink:0">
-        <div style="width:${pct}%;height:100%;background:var(--green)"></div>
-      </div>
-      <div style="width:34px;text-align:right;font-size:11px;font-family:var(--mono);color:var(--green);flex-shrink:0;font-weight:600">${pct}%</div>
-    </div>`;
-  el.innerHTML=`
-    <div style="margin:20px 16px 0;border:1px solid var(--line2);padding:14px 14px 6px">
-      <div style="font-size:9px;font-weight:700;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid var(--line2);padding-bottom:8px">Wet analyse — ${total} dag${total===1?'':'en'}</div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--ac);text-transform:uppercase;margin-bottom:4px">Zwakste wetten</div>
-      ${weakest.map(weakRow).join('')}
-      <div style="font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--green);text-transform:uppercase;margin:14px 0 4px">Sterkste wetten</div>
-      ${strongest.map(strongRow).join('')}
-    </div>`;
-}
+// (75-grid wordt nu in renderStats getekend — losse renderDots75Me vervallen)
 
 function getDayGrade(date){
   const c=S.checks[date]||{};
@@ -123,8 +215,4 @@ function gradeColor(g){
   if(g==='D')return'var(--orange)';
   if(g==='—')return'var(--dim)';
   return'var(--red)';
-}
-
-function renderDots75Me(){
-  renderDots75('g75', 'grid');
 }

@@ -75,6 +75,7 @@ export interface AppState {
   chat: ChatMessage[];
   mood: Record<string, number>;
   theme: string;
+  accent: string;
   apiKey: string;
   token: string | null;
   email: string | null;
@@ -91,6 +92,7 @@ export interface AppState {
   updateEntry: (date: string, updates: Partial<Entry>) => void;
   setMood: (date: string, value: number) => void;
   setTheme: (theme: string) => void;
+  setAccent: (accent: string) => void;
   setApiKey: (key: string) => void;
   setToken: (token: string | null) => void;
   setEmail: (email: string | null) => void;
@@ -116,6 +118,7 @@ const initialState = {
   chat: [],
   mood: {},
   theme: 'arctic',
+  accent: 'evolve',
   apiKey: '',
   token: null,
   email: null,
@@ -170,6 +173,7 @@ export const useStore = create<AppState>()(
         set((state) => ({ mood: { ...state.mood, [date]: value } })),
 
       setTheme: (theme) => set({ theme }),
+      setAccent: (accent) => set({ accent }),
       setApiKey: (apiKey) => set({ apiKey }),
       setToken: (token) => set({ token }),
       setEmail: (email) => set({ email }),

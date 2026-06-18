@@ -184,3 +184,52 @@
 .me-item-desc{font-size:11.5px;color:var(--muted)}
 .me-item-chev{color:var(--dim);font-size:18px}
 .me-stats-label{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.22em;color:var(--dim);text-transform:uppercase;margin:0 0 8px}
+
+/* ══════════════════════════════════════════════════════════
+   PROFIEL V14 — Evolve parity met mobile ProfielScreen
+   ══════════════════════════════════════════════════════════ */
+/* Avatar-kop */
+.me-avatar-row{display:flex;align-items:center;gap:14px;padding-top:6px;margin:0;border:none}
+.me-avatar-tile{width:62px;height:62px;border-radius:20px;border:1px solid var(--warm-border);background:var(--warm-grad);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--sans);font-weight:600;font-size:24px;color:var(--gold2)}
+.me-name{font-family:var(--sans);font-weight:600;font-size:23px;color:var(--text);letter-spacing:-.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me-phase{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--gold);margin-top:3px}
+
+/* Generieke kaart */
+.me-card{margin:16px 0 0;background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:20px}
+.me-card-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;margin-bottom:13px}
+
+/* Wie ik word (warm goud-verloop) */
+.me-becoming{margin:22px 0 0;padding:20px;border-radius:22px;border:1px solid var(--warm-border);background:var(--warm-grad)}
+.me-becoming-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin-bottom:9px}
+.me-becoming-text{font-family:var(--sans);font-weight:500;font-size:17px;line-height:1.4;color:var(--text);letter-spacing:-.2px}
+
+/* Doelen */
+.me-bullets{display:flex;flex-direction:column;gap:12px}
+.me-bullet{display:flex;align-items:flex-start;gap:12px}
+.me-bullet-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);margin-top:7px;flex-shrink:0}
+.me-bullet-text{flex:1;font-family:var(--body-font);font-size:14.5px;line-height:1.45;color:var(--text)}
+.me-fallback{font-family:var(--body-font);font-size:14px;line-height:1.45;color:var(--muted)}
+
+/* Tegels (Mijn wetten / Fase) */
+.me-tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 0}
+.me-tile{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:16px}
+.me-tile-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--dim);text-transform:uppercase;margin-bottom:10px}
+.me-tile-num{font-family:var(--sans);font-weight:600;font-size:28px;color:var(--text);letter-spacing:-.5px;line-height:1;font-variant-numeric:tabular-nums}
+.me-tile-unit{font-size:16px;color:var(--dim)}
+.me-tile-sub{font-family:var(--body-font);font-size:12.5px;color:var(--dim);margin-top:4px}
+.me-tile-track{height:5px;border-radius:999px;background:var(--ring-track);margin-top:11px;overflow:hidden}
+.me-tile-fill{height:5px;border-radius:999px;background:var(--gold)}
+
+/* Mijn waarom */
+.me-why{font-family:var(--body-font);font-size:14.5px;line-height:1.5;color:var(--muted);font-style:italic}
+
+/* Voortgang-blok zit op de Me-tab tussen profielkaarten — extra sectie-ruimte */
+#voortgang-stats{display:block;margin-top:14px}
+
+/* Thema-picker (Evolve) */
+.theme-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:0}
+.theme-tile{padding:12px;background:var(--s0);border:1px solid var(--line);border-radius:13px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px}
+.theme-tile.on{border-color:var(--gold);background:var(--bg3)}
+.theme-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+.theme-name{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.02em}
+.theme-tile.on .theme-name{color:var(--text)}

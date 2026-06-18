@@ -76,16 +76,9 @@ function renderChat(){
 
   if(S.chat.length === 0){
     el.innerHTML = `<div class="chat-empty">
-      <div class="chat-empty-ic">💬</div>
-      <div class="chat-empty-t">Praat met Claude</div>
-      <div class="chat-empty-s">Direct contact met je coach. Hij kent je verhaal, je schaduw, en wat je vandaag wel/niet hebt gedaan.</div>
-      <div class="chat-prompts">
-        <button class="chat-prompt-btn" onclick="sendQuickPrompt('Ik twijfel of ik vandaag moet trainen.')">"Ik twijfel of ik vandaag moet trainen."</button>
-        <button class="chat-prompt-btn" onclick="sendQuickPrompt('Net een trade verloren, wil revenge traden.')">"Net een trade verloren, wil revenge traden."</button>
-        <button class="chat-prompt-btn" onclick="sendQuickPrompt('Voel me leeg. Geen zin om iets te doen.')">"Voel me leeg. Geen zin om iets te doen."</button>
-        ${isCasinoDay()?`<button class="chat-prompt-btn" onclick="sendQuickPrompt('Hoe ga ik vandaag om met mijn ${escapeHtml((S.casinoMode&&S.casinoMode.label)||'dienst')}?')">"Hoe ga ik vandaag om met mijn ${escapeHtml((S.casinoMode&&S.casinoMode.label)||'dienst')}?"</button>`:''}
-
-      </div>
+      <div class="chat-empty-ic">✦</div>
+      <div class="chat-empty-t">Praat met je coach</div>
+      <div class="chat-empty-s">Direct contact met je coach. Hij kent je verhaal, je schaduw, en wat je vandaag wel of niet hebt gedaan.</div>
     </div>`;
     return;
   }
@@ -94,7 +87,7 @@ function renderChat(){
     if(m.role === 'user'){
       return `<div class="msg user">${escapeHtml(m.content)}</div>`;
     } else {
-      return `<div class="msg assistant"><div class="msg-claude">Claude</div>${escapeHtml(m.content)}</div>`;
+      return `<div class="msg assistant"><div class="msg-claude">Coach</div>${escapeHtml(m.content)}</div>`;
     }
   }).join('');
 
@@ -127,7 +120,7 @@ async function sendChat(){
   const thinking = document.createElement('div');
   thinking.className = 'msg-thinking';
   thinking.id = 'msg-thinking';
-  thinking.textContent = 'Denkt na…';
+  thinking.textContent = 'Coach denkt na…';
   msgsEl.appendChild(thinking);
   setTimeout(()=>{msgsEl.scrollTop = msgsEl.scrollHeight;}, 20);
   sendBtn.disabled = true;

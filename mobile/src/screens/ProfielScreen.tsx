@@ -11,8 +11,10 @@ import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
-import { useStore, dayNum } from '../store/useStore';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { useStore, dayNum, bestStreak } from '../store/useStore';
+import { EVOLVE_THEMES, EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
+import DotGrid from '../components/DotGrid';
 
 // Fase-label op basis van challenge-dag (1-75).
 function phaseFor(day: number): { n: number; text: string } {
@@ -65,13 +67,21 @@ function BellIcon({ color }: { color: string }) {
 
 export default function ProfielScreen() {
   const navigation = useNavigation<any>();
-  const profile = useStore((s) => s.profile);
-  const identity = useStore((s) => s.identity);
-  const startDate = useStore((s) => s.startDate);
+  const E = useEvolve();
+  const s = makeStyles(E);
+
+  const profile = useStore((st) => st.profile);
+  const identity = useStore((st) => st.identity);
+  const startDate = useStore((st) => st.startDate);
+  const checks = useStore((st) => st.checks);
+  const fails = useStore((st) => st.fails);
+  const accent = useStore((st) => st.accent);
+  const setAccent = useStore((st) => st.setAccent);
 
   const day = startDate ? dayNum(startDate) : 1;
   const phase = phaseFor(day);
   const pct = Math.round((day / 75) * 100);
+  const streak = bestStreak(identity, checks, startDate);
 
   const name = profile?.name || 'Operator';
   const initial = name.trim().charAt(0).toUpperCase() || 'O';
@@ -98,7 +108,7 @@ export default function ProfielScreen() {
     <SafeAreaView style={s.container} edges={['top']}>
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        {/* Avatar-rij */}
+        {/* Avatar-rij — profielkop */}
         <View style={s.avatarRow}>
           <LinearGradient
             colors={['#2A241B', '#15120D']}
@@ -162,10 +172,66 @@ export default function ProfielScreen() {
           </View>
         </View>
 
+        {/* Voortgang — 75-dagen dots-grid */}
+        <View style={s.card}>
+          <View style={s.gridHead}>
+            <Text style={s.cardEyebrow}>VOORTGANG</Text>
+            <Text style={s.gridDay}>DAG {day} / 75</Text>
+          </View>
+          <DotGrid
+            startDate={startDate}
+            checks={checks}
+            fails={fails}
+            identity={identity}
+            size="large"
+          />
+          <View style={s.legendRow}>
+            <View style={s.legendItem}>
+              <View style={[s.legendDot, { backgroundColor: E.gold }]} />
+              <Text style={s.legendText}>Vandaag</Text>
+            </View>
+            <View style={s.legendItem}>
+              <View style={[s.legendDot, { backgroundColor: E.green }]} />
+              <Text style={s.legendText}>Voltooid</Text>
+            </View>
+            <View style={s.legendItem}>
+              <View style={[s.legendDot, { backgroundColor: E.red }]} />
+              <Text style={s.legendText}>Gemist</Text>
+            </View>
+            <Text style={s.streakText}>{streak} dagen streak</Text>
+          </View>
+        </View>
+
         {/* Mijn waarom */}
         <View style={s.card}>
           <Text style={s.cardEyebrow}>MIJN WAAROM</Text>
           <Text style={s.whyText}>{why}</Text>
+        </View>
+
+        {/* Thema */}
+        <View style={s.card}>
+          <Text style={s.cardEyebrow}>THEMA</Text>
+          <View style={s.themeGrid}>
+            {EVOLVE_THEMES.map((t) => {
+              const active = t.id === accent;
+              return (
+                <TouchableOpacity
+                  key={t.id}
+                  activeOpacity={0.8}
+                  onPress={() => setAccent(t.id)}
+                  style={[
+                    s.themeTile,
+                    active && { borderColor: t.gold, backgroundColor: E.s2 },
+                  ]}
+                >
+                  <View style={[s.themeDot, { backgroundColor: t.gold }]} />
+                  <Text style={[s.themeName, active && { color: E.ink }]} numberOfLines={1}>
+                    {t.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         {/* CTA's */}
@@ -192,93 +258,142 @@ export default function ProfielScreen() {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: E.bg },
-  scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
+function makeStyles(E: EvolveColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: E.bg },
+    scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
 
-  // Avatar
-  avatarRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: 6 },
-  avatarTile: {
-    width: 62,
-    height: 62,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(200,164,92,0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarLetter: { fontFamily: F.display, fontSize: 24, color: E.gold2 },
-  name: { fontFamily: F.display, fontSize: 23, color: E.ink, letterSpacing: -0.4 },
-  phaseLabel: { fontFamily: F.mono, fontSize: 11, letterSpacing: 1, color: E.gold, marginTop: 3 },
+    // Avatar / profielkop
+    avatarRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: 6 },
+    avatarTile: {
+      width: 62,
+      height: 62,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: E.warmBorder,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarLetter: { fontFamily: F.display, fontSize: 24, color: E.gold2 },
+    name: { fontFamily: F.display, fontSize: 23, color: E.ink, letterSpacing: -0.4 },
+    phaseLabel: { fontFamily: F.mono, fontSize: 11, letterSpacing: 1, color: E.gold, marginTop: 3 },
 
-  // Wie ik word
-  becomingCard: {
-    marginTop: 22,
-    padding: 20,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: E.warmBorder,
-    overflow: 'hidden',
-  },
-  becomingEyebrow: { fontFamily: F.mono, fontSize: 10, letterSpacing: 2, color: E.gold, marginBottom: 9 },
-  becomingText: { fontFamily: F.displayMed, fontSize: 17, lineHeight: 24, color: E.ink, letterSpacing: -0.2 },
+    // Wie ik word
+    becomingCard: {
+      marginTop: 22,
+      padding: 20,
+      borderRadius: 22,
+      borderWidth: 1,
+      borderColor: E.warmBorder,
+      overflow: 'hidden',
+    },
+    becomingEyebrow: { fontFamily: F.mono, fontSize: 10, letterSpacing: 2, color: E.gold, marginBottom: 9 },
+    becomingText: { fontFamily: F.displayMed, fontSize: 17, lineHeight: 24, color: E.ink, letterSpacing: -0.2 },
 
-  // Generieke kaart
-  card: {
-    marginTop: 16,
-    padding: 20,
-    backgroundColor: E.s1,
-    borderWidth: 1,
-    borderColor: E.line,
-    borderRadius: 20,
-  },
-  cardEyebrow: { fontFamily: F.mono, fontSize: 10, letterSpacing: 2, color: E.faint, marginBottom: 13 },
+    // Generieke kaart
+    card: {
+      marginTop: 16,
+      padding: 20,
+      backgroundColor: E.s1,
+      borderWidth: 1,
+      borderColor: E.line,
+      borderRadius: 20,
+    },
+    cardEyebrow: { fontFamily: F.mono, fontSize: 10, letterSpacing: 2, color: E.faint, marginBottom: 13 },
 
-  // Doelen
-  bulletList: { gap: 12 },
-  bulletRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  bulletDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: E.gold, marginTop: 7 },
-  bulletText: { flex: 1, fontFamily: F.body, fontSize: 14.5, lineHeight: 21, color: E.ink },
-  fallbackText: { fontFamily: F.body, fontSize: 14, lineHeight: 21, color: E.dim },
+    // Doelen
+    bulletList: { gap: 12 },
+    bulletRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+    bulletDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: E.gold, marginTop: 7 },
+    bulletText: { flex: 1, fontFamily: F.body, fontSize: 14.5, lineHeight: 21, color: E.ink },
+    fallbackText: { fontFamily: F.body, fontSize: 14, lineHeight: 21, color: E.dim },
 
-  // Tegels
-  tileRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
-  tile: { flex: 1, marginTop: 0 },
-  tileEyebrow: { fontFamily: F.mono, fontSize: 10, letterSpacing: 2, color: E.faint, marginBottom: 10 },
-  tileNum: { fontFamily: F.display, fontSize: 28, color: E.ink, letterSpacing: -0.5 },
-  tileSub: { fontFamily: F.body, fontSize: 12.5, color: E.dim, marginTop: 4 },
-  progressTrack: {
-    height: 5,
-    borderRadius: 999,
-    backgroundColor: 'rgba(236,231,220,0.08)',
-    marginTop: 11,
-    overflow: 'hidden',
-  },
-  progressFill: { height: 5, borderRadius: 999, backgroundColor: E.gold },
+    // Tegels
+    tileRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
+    tile: { flex: 1, marginTop: 0 },
+    tileEyebrow: { fontFamily: F.mono, fontSize: 10, letterSpacing: 2, color: E.faint, marginBottom: 10 },
+    tileNum: { fontFamily: F.display, fontSize: 28, color: E.ink, letterSpacing: -0.5 },
+    tileSub: { fontFamily: F.body, fontSize: 12.5, color: E.dim, marginTop: 4 },
+    progressTrack: {
+      height: 5,
+      borderRadius: 999,
+      backgroundColor: E.ringTrack,
+      marginTop: 11,
+      overflow: 'hidden',
+    },
+    progressFill: { height: 5, borderRadius: 999, backgroundColor: E.gold },
 
-  // Waarom
-  whyText: { fontFamily: F.body, fontSize: 14.5, lineHeight: 22, color: E.dim, fontStyle: 'italic' },
+    // Voortgang-grid
+    gridHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 16,
+    },
+    gridDay: {
+      fontFamily: F.monoBold,
+      fontSize: 11,
+      letterSpacing: 1,
+      color: E.gold,
+      marginBottom: 0,
+    },
+    legendRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      marginTop: 16,
+      flexWrap: 'wrap',
+    },
+    legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    legendDot: { width: 8, height: 8, borderRadius: 4 },
+    legendText: { fontFamily: F.body, fontSize: 11.5, color: E.dim },
+    streakText: { fontFamily: F.monoBold, fontSize: 11, color: E.faint, marginLeft: 'auto', letterSpacing: 0.5 },
 
-  // CTA
-  ctaCol: { marginTop: 22, gap: 11 },
-  ctaPrimary: {
-    height: 54,
-    borderRadius: 16,
-    backgroundColor: E.gold,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaPrimaryText: { fontFamily: F.display, fontSize: 15.5, color: E.goldText },
-  ctaOutline: {
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: E.line,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 9,
-  },
-  ctaOutlineText: { fontFamily: F.display, fontSize: 15, color: E.ink },
-});
+    // Waarom
+    whyText: { fontFamily: F.body, fontSize: 14.5, lineHeight: 22, color: E.dim, fontStyle: 'italic' },
+
+    // Thema-picker
+    themeGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+    },
+    themeTile: {
+      width: '31%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 9,
+      paddingVertical: 12,
+      paddingHorizontal: 12,
+      borderRadius: 13,
+      borderWidth: 1,
+      borderColor: E.line,
+      backgroundColor: E.s0,
+    },
+    themeDot: { width: 16, height: 16, borderRadius: 8, flexShrink: 0 },
+    themeName: { fontFamily: F.mono, fontSize: 11, color: E.dim, letterSpacing: 0.3 },
+
+    // CTA
+    ctaCol: { marginTop: 22, gap: 11 },
+    ctaPrimary: {
+      height: 54,
+      borderRadius: 16,
+      backgroundColor: E.gold,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ctaPrimaryText: { fontFamily: F.display, fontSize: 15.5, color: E.goldText },
+    ctaOutline: {
+      height: 52,
+      borderRadius: 16,
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: E.line,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 9,
+    },
+    ctaOutlineText: { fontFamily: F.display, fontSize: 15, color: E.ink },
+  });
+}

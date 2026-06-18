@@ -1,13 +1,9 @@
 // ═══════════════════════════════
-// TODAY PAGE — rules, quote, mood, hero
+// TODAY PAGE — header, ring, rules, quote, mood
 // ═══════════════════════════════
-const ZONE_SECTIONS={
-  'rlist-ochtend':    ['ochtend','dag'],
-  'rlist-tussendoor': ['fysiek','mentaal'],
-  'rlist-avond':      ['avond']
-};
-
 function renderRules(){
+  const host=document.getElementById('today-sections');
+  if(!host)return;
   const c=todayChecks();
   const rs=rules();
   const casino=isCasinoDay();
@@ -15,44 +11,42 @@ function renderRules(){
   const scheduleLabel=(S.casinoMode&&S.casinoMode.label)||'Nachtdienst';
 
   if(rs.length===0){
-    const el=document.getElementById('rlist-ochtend');
-    if(el)el.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--muted);font-size:13px">Geen wetten geladen.</div>';
-    ['rlist-tussendoor','rlist-avond'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+    host.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--muted);font-size:13px">Geen wetten geladen.</div>';
     return;
   }
 
-  Object.entries(ZONE_SECTIONS).forEach(([zoneId,sections])=>{
-    const el=document.getElementById(zoneId);
-    if(!el)return;
-    let h='';
-    sections.forEach(secKey=>{
-      const meta=SECTION_META[secKey];
-      const secRules=rs.filter(r=>r.section===secKey);
-      if(!secRules.length)return;
-      const exempt=casino&&exemptSections.includes(secKey);
-      const active=exempt?[]:secRules;
-      const sd=active.filter(r=>c[r.id]).length;
-      const secTotal=active.length;
-      const full=secTotal>0&&sd===secTotal;
-      const secProgTxt=exempt?`<span class="sec-casino-badge">${escapeHtml(scheduleLabel.toLowerCase())}</span>`:`${sd}/${secTotal}`;
-      h+=`<div class="sec"><span class="sec-name">${meta.name}</span><span class="sec-prog ${full?'full':''}">${secProgTxt}</span></div>`;
-      secRules.forEach(r=>{
-        const isExempt=casino&&exemptSections.includes(r.section);
-        const done=!isExempt&&c[r.id]?'done':'';
-        const hasInfo=r.sub||r.warn;
-        h+=`<div class="rule ${done}${isExempt?' casino-exempt':''}" id="rule-${r.id}">
-          <div class="rbox" onclick="event.stopPropagation();${isExempt?'':` toggleRule('${r.id}')`}"><span class="rchk">✓</span></div>
-          <div class="rbody" onclick="toggleRuleExpand('${r.id}')">
-            <div class="rname">${escapeHtml(r.name)}${isExempt?'<span class="casino-badge">opt.</span>':''}</div>
-            ${r.sub?`<div class="rsub">${escapeHtml(r.sub)}</div>`:''}
-            ${r.warn?`<div class="rwarn">${escapeHtml(r.warn)}</div>`:''}
-          </div>
-          ${hasInfo?`<div class="rule-info-btn" onclick="toggleRuleExpand('${r.id}')">ⓘ</div>`:''}
-        </div>`;
-      });
+  let h='';
+  SECTION_ORDER.forEach(secKey=>{
+    const meta=SECTION_META[secKey];
+    const secRules=rs.filter(r=>r.section===secKey);
+    if(!secRules.length)return;
+    const exempt=casino&&exemptSections.includes(secKey);
+    const active=exempt?[]:secRules;
+    const sd=active.filter(r=>c[r.id]).length;
+    const countTxt=exempt?`<span class="sec-casino-badge">${escapeHtml(scheduleLabel.toLowerCase())}</span>`:`${sd}/${secRules.length}`;
+    h+=`<div class="t-section">
+      <div class="t-sec-head">
+        <div class="t-sec-head-l"><span class="t-sec-icon">${meta.icon}</span><span class="t-sec-title">${escapeHtml(meta.name)}</span></div>
+        <span class="t-sec-count">${countTxt}</span>
+      </div>
+      <div class="t-sec-card">`;
+    secRules.forEach(r=>{
+      const isExempt=casino&&exemptSections.includes(r.section);
+      const done=!isExempt&&c[r.id]?' done':'';
+      const hasInfo=r.sub||r.warn;
+      h+=`<div class="t-task${done}${isExempt?' casino-exempt':''}" id="rule-${r.id}">
+        <div class="t-task-main" onclick="${isExempt?'':`toggleRule('${r.id}')`}">
+          <div class="t-check"><span class="t-check-mark">✓</span></div>
+          <div class="t-task-text">${escapeHtml(r.name)}${isExempt?'<span class="casino-badge">opt.</span>':''}</div>
+          ${hasInfo?`<button class="t-task-info" onclick="event.stopPropagation();toggleRuleExpand('${r.id}')">ⓘ</button>`:''}
+        </div>
+        ${r.sub?`<div class="t-task-sub">${escapeHtml(r.sub)}</div>`:''}
+        ${r.warn?`<div class="t-task-warn">${escapeHtml(r.warn)}</div>`:''}
+      </div>`;
     });
-    el.innerHTML=h;
+    h+=`</div></div>`;
   });
+  host.innerHTML=h;
 }
 
 function renderCasinoBanner(){
@@ -75,7 +69,7 @@ function toggleRuleExpand(id){
 
 function toggleRule(id){
   const c=todayChecks();c[id]=!c[id];
-  save();renderRules();renderProg();renderDots();
+  save();renderRules();renderRingCard();renderProg();
   const{done,total}=progress();
   if(done===total){
     setTimeout(()=>{checkMilestone();},400);
@@ -293,43 +287,72 @@ function saveQuickLog(){
 
 
 // ═══════════════════════════════
-// HERO CARD
+// HEADER + RING (Evolve parity met mobile TodayScreen)
 // ═══════════════════════════════
-function renderHeroCard(){
-  const el = document.getElementById('today-hero');
-  if(!el) return;
-  const n = dayNum();
-  const rs = rules();
-  const c = todayChecks();
-  const done = rs.filter(r=>c[r.id]).length;
-  const total = rs.length;
-  const pct = total ? Math.round(done/total*100) : 0;
-  const phase = n<=25?'Foundation':n<=50?'Build':'Peak';
-  const phaseColor = n<=25?'var(--blue)':n<=50?'var(--orange)':'var(--red)';
+function greetingWeb(){
+  const h=new Date().getHours();
+  if(h<12)return'Goedemorgen';
+  if(h<18)return'Goedemiddag';
+  return'Goedenavond';
+}
 
-  const dots = Array.from({length:75},(_,i)=>{
-    const d = i+1;
-    if(d < n) return `<div class="dot75-bar ok"></div>`;
-    if(d === n) return `<div class="dot75-bar now"></div>`;
-    return `<div class="dot75-bar"></div>`;
-  }).join('');
+// Beste reeks: langste aaneengesloten run van complete dagen (1..vandaag).
+function bestStreakWeb(){
+  const rs=rules();if(!rs.length||!S.startDate)return 0;
+  const total=dayNum();let best=0,run=0;
+  for(let nn=1;nn<=total;nn++){
+    const dc=S.checks[dateForDay(nn)]||{};
+    if(rs.every(r=>dc[r.id])){run++;if(run>best)best=run;}else run=0;
+  }
+  return best;
+}
 
-  el.innerHTML = `<div class="hero-card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div>
-        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Dag</div>
-        <div style="font-family:var(--sans);font-size:72px;font-weight:900;color:var(--text);line-height:1">${n}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">van 75</div>
-      </div>
-      <div style="text-align:right">
-        <div style="background:${phaseColor};color:#000;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:8px">${phase.toUpperCase()}</div>
-        <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--ac)">${pct}%</div>
-        <div style="font-size:11px;color:var(--muted)">${done}/${total} wetten</div>
-      </div>
+// Gem. naleving: gemiddeld percentage afgevinkte wetten over alle verstreken dagen.
+function avgComplianceWeb(){
+  const rs=rules();if(!rs.length||!S.startDate)return 0;
+  const total=dayNum();if(total<=0)return 0;
+  let sum=0;
+  for(let nn=1;nn<=total;nn++){
+    const dc=S.checks[dateForDay(nn)]||{};
+    sum+=rs.filter(r=>dc[r.id]).length/rs.length;
+  }
+  return Math.round(sum/total*100);
+}
+
+function renderTodayHeader(){
+  const el=document.getElementById('today-header');
+  if(!el)return;
+  const n=dayNum();
+  const name=(S.profile&&S.profile.name)?', '+S.profile.name:'';
+  el.innerHTML=`<div class="t-header-l">
+      <div class="t-eyebrow">DAG ${n} / 75</div>
+      <div class="t-greeting">${greetingWeb()}${escapeHtml(name)}</div>
     </div>
-    <div class="dot75-grid" style="margin-top:16px">${dots}</div>
-    <button onclick="openSettings()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;display:none">⚙</button>
-  </div>`;
+    <div class="t-streak"><span class="t-streak-emoji">🔥</span><span class="t-streak-num">${calcStreak()}</span></div>`;
+}
+
+function renderRingCard(){
+  const el=document.getElementById('today-ring');
+  if(!el)return;
+  const{done,total}=progress();
+  const frac=total?done/total:0;
+  const pct=Math.round(frac*100);
+  const R=54,C=2*Math.PI*R;
+  const offset=C*(1-frac);
+  el.innerHTML=`<div class="t-ring-wrap">
+      <svg width="128" height="128" class="t-ring-svg" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r="${R}" stroke="var(--ring-track)" stroke-width="11" fill="none"/>
+        <circle cx="64" cy="64" r="${R}" stroke="var(--gold)" stroke-width="11" fill="none" stroke-linecap="round" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"/>
+      </svg>
+      <div class="t-ring-center"><div class="t-ring-pct">${pct}<span class="t-ring-unit">%</span></div><div class="t-ring-label">VOLTOOID</div></div>
+    </div>
+    <div class="t-ring-info">
+      <div class="t-ring-desc">Je hebt <b>${done} van ${total}</b> wetten nageleefd vandaag.</div>
+      <div class="t-mini">
+        <div class="t-mini-row"><span class="t-mini-lbl">Beste reeks</span><span class="t-mini-val">${bestStreakWeb()} dgn</span></div>
+        <div class="t-mini-row"><span class="t-mini-lbl">Gem. naleving</span><span class="t-mini-val green">${avgComplianceWeb()}%</span></div>
+      </div>
+    </div>`;
 }
 
 // ═══════════════════════════════

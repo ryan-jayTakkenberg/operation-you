@@ -5,7 +5,6 @@ function renderHeader(){
   const n=dayNum();
   const setText=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
   setText('dn',n);
-  setText('ss-day',n);
   setText('mdaynum',n);
   const now=new Date();
   setText('ds',now.toLocaleDateString('nl-NL',{day:'numeric',month:'long'}).toUpperCase());
@@ -35,12 +34,12 @@ function renderDots(){
 let currentPage = 'today';
 
 function renderToday(){
-  renderHeader();renderDots();renderProg();renderRules();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner();
+  renderHeader();renderProg();renderTodayHeader();renderRingCard();renderRules();checkMilestone();renderMoodStrip();renderCasinoBanner();
 }
 
 function renderAll(){
   renderHeader();
-  if(currentPage==='today') { renderDots();renderProg();renderRules();checkMilestone();renderHeroCard();renderMoodStrip();renderCasinoBanner(); }
+  if(currentPage==='today') { renderProg();renderTodayHeader();renderRingCard();renderRules();checkMilestone();renderMoodStrip();renderCasinoBanner(); }
   else if(currentPage==='plan') { renderJourney();renderPlanScreen(); }
   else if(currentPage==='me') { renderStats();renderMeScreen(); }
   else if(currentPage==='coach') { renderChat(); }
@@ -144,22 +143,72 @@ function renderPlanScreen(){
 }
 
 // ═══════════════════════════════
-// ME SCREEN
+// ME / PROFIEL SCREEN — parity met mobile ProfielScreen
 // ═══════════════════════════════
+function phaseForDay(day){
+  if(day>=51) return {n:3,text:'Pieken'};
+  if(day>=26) return {n:2,text:'Bouwen'};
+  return {n:1,text:'Fundering leggen'};
+}
+function firstSentence(text){
+  if(!text) return '';
+  const t=text.trim();
+  if(!t) return '';
+  const m=t.split(/(?<=\.)\s|\n/)[0];
+  return (m||t).trim();
+}
+function toBullets(goal){
+  if(!goal) return [];
+  return goal.split(/\.\s+|\n+/).map(p=>p.replace(/\.$/,'').trim()).filter(p=>p.length>0).slice(0,4);
+}
+
 function renderMeScreen(){
-  const el = document.getElementById('me-profile-header');
-  if(el){
-    const name = (S.identity&&S.identity.name)||(S.profile&&S.profile.name)||'Jij';
-    const n = dayNum();
-    el.innerHTML = `<div style="padding:20px 16px 8px;display:flex;align-items:center;gap:14px">
-      <div style="width:52px;height:52px;border-radius:50%;background:var(--ac-dim);border:2px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:22px">🔥</div>
-      <div>
-        <div style="font-family:var(--sans);font-size:18px;font-weight:700;color:var(--text)">${name}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">Dag ${n} van 75 — Operation You</div>
+  const head = document.getElementById('me-profile-header');
+  if(!head) return;
+  const name = (S.profile&&S.profile.name)||'Operator';
+  const initial = (name.trim().charAt(0)||'O').toUpperCase();
+  const day = dayNum();
+  const pct = Math.round(day/75*100);
+  const phase = phaseForDay(day);
+  const ruleCount = rules().length;
+  const id = S.identity||{}, p = S.profile||{};
+
+  const becoming = id.why || firstSentence(id.manifesto) || p.goal || 'Je verhaal komt hier zodra je je profiel hebt ingevuld.';
+  const why = id.why || firstSentence(p.story) || 'Vul je profiel aan om je waarom vast te leggen.';
+  const bullets = toBullets(p.goal);
+
+  head.innerHTML = `<div class="me-avatar-tile">${escapeHtml(initial)}</div>
+    <div style="flex:1;min-width:0">
+      <div class="me-name">${escapeHtml(name)}</div>
+      <div class="me-phase">Fase ${phase.n} — ${phase.text}</div>
+    </div>`;
+
+  const top = document.getElementById('me-profile-top');
+  if(top){
+    top.innerHTML = `
+      <div class="me-becoming">
+        <div class="me-becoming-eyebrow">Wie ik word</div>
+        <div class="me-becoming-text">${escapeHtml(becoming)}</div>
       </div>
-      <button onclick="openSettings()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">⚙</button>
+      <div class="me-card">
+        <div class="me-card-eyebrow">Mijn doelen</div>
+        ${bullets.length
+          ? `<div class="me-bullets">${bullets.map(b=>`<div class="me-bullet"><span class="me-bullet-dot"></span><span class="me-bullet-text">${escapeHtml(b)}</span></div>`).join('')}</div>`
+          : `<div class="me-fallback">Vul je profiel aan om je doelen te zien.</div>`}
+      </div>
+      <div class="me-tiles">
+        <div class="me-tile"><div class="me-tile-eyebrow">Mijn wetten</div><div class="me-tile-num">${ruleCount}</div><div class="me-tile-sub">actieve wetten</div></div>
+        <div class="me-tile"><div class="me-tile-eyebrow">Fase</div><div class="me-tile-num">${pct}<span class="me-tile-unit">%</span></div><div class="me-tile-track"><div class="me-tile-fill" style="width:${pct}%"></div></div></div>
+      </div>`;
+  }
+
+  const bottom = document.getElementById('me-profile-bottom');
+  if(bottom){
+    bottom.innerHTML = `<div class="me-card">
+      <div class="me-card-eyebrow">Mijn waarom</div>
+      <div class="me-why">${escapeHtml(why)}</div>
     </div>`;
   }
+
   renderThemeGrid();
-  renderDots75Me();
 }

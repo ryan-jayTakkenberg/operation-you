@@ -13,7 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useStore, today, dayNum } from '../store/useStore';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
 
 const WEEKDAYS = [
   'ZONDAG',
@@ -47,10 +48,14 @@ function ScoreSelector({
   value,
   accent,
   onChange,
+  s,
+  E,
 }: {
   value: number;
   accent: string;
   onChange: (n: number) => void;
+  s: ReturnType<typeof makeStyles>;
+  E: EvolveColors;
 }) {
   return (
     <View style={s.segRow}>
@@ -71,6 +76,8 @@ function ScoreSelector({
 }
 
 export default function JournalScreen() {
+  const E = useEvolve();
+  const s = makeStyles(E);
   const startDate = useStore((s) => s.startDate);
   const mood = useStore((s) => s.mood);
   const entries = useStore((s) => s.entries);
@@ -149,6 +156,8 @@ export default function JournalScreen() {
                 value={disc}
                 accent={E.gold}
                 onChange={(n) => updateEntry(todayStr, { disc: n })}
+                s={s}
+                E={E}
               />
             </View>
 
@@ -161,6 +170,8 @@ export default function JournalScreen() {
                 value={energy}
                 accent={E.green}
                 onChange={(n) => updateEntry(todayStr, { energy: n })}
+                s={s}
+                E={E}
               />
             </View>
           </View>
@@ -245,7 +256,8 @@ export default function JournalScreen() {
   );
 }
 
-const s = StyleSheet.create({
+function makeStyles(E: EvolveColors) {
+  return StyleSheet.create({
   container: { flex: 1, backgroundColor: E.bg },
   scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
 
@@ -360,4 +372,5 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   saveBtnText: { fontFamily: F.display, fontSize: 16, color: E.goldText },
-});
+  });
+}

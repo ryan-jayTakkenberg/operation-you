@@ -16,7 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useStore, today, dayNum, getRules, getProgress } from '../store/useStore';
 import { claudeCall, buildCoachContext } from '../api/claude';
-import { useTheme } from '../hooks/useTheme';
+import { EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
 import type { ChatMessage } from '../store/useStore';
 
 const QUICK_PROMPTS = [
@@ -27,7 +28,8 @@ const QUICK_PROMPTS = [
 ];
 
 export default function CoachScreen() {
-  const colors = useTheme();
+  const E = useEvolve();
+  const s = makeStyles(E);
   const profile = useStore((s) => s.profile);
   const identity = useStore((s) => s.identity);
   const startDate = useStore((s) => s.startDate);
@@ -113,45 +115,35 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
     );
   }
 
-  const styles = makeStyles(colors);
-
-  const renderMessage = useCallback(
-    ({ item }: { item: ChatMessage }) => {
-      const isUser = item.role === 'user';
-      return (
-        <View
-          style={[
-            styles.bubble,
-            isUser ? styles.userBubble : styles.aiBubble,
-            { backgroundColor: isUser ? colors.acDim : '#10131a' },
-          ]}
-        >
-          {!isUser && (
-            <Text style={[styles.bubbleRole, { color: colors.ac }]}>COACH</Text>
-          )}
-          <Text style={[styles.bubbleText, isUser && { color: colors.acStrong }]}>
-            {item.content}
-          </Text>
-        </View>
-      );
-    },
-    [colors]
-  );
+  const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
+    const isUser = item.role === 'user';
+    return (
+      <View style={[s.bubble, isUser ? s.userBubble : s.aiBubble]}>
+        {!isUser && (
+          <View style={s.roleRow}>
+            <View style={s.roleDot} />
+            <Text style={s.bubbleRole}>COACH</Text>
+          </View>
+        )}
+        <Text style={[s.bubbleText, isUser && s.userBubbleText]}>{item.content}</Text>
+      </View>
+    );
+  }, [s]);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top']}>
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>COACH</Text>
-          <Text style={styles.headerSub}>
-            {identity?.name ?? 'Operation You'} · Dag {currentDay}
+      <View style={s.header}>
+        <View style={{ flex: 1 }}>
+          <Text style={s.headerTitle}>
+            <Text style={s.headerSparkle}>✦ </Text>Coach
           </Text>
+          <Text style={s.headerSub}>Persoonlijke AI — kent jouw verhaal</Text>
         </View>
-        <TouchableOpacity onPress={handleClearChat} style={styles.clearBtn}>
-          <Text style={styles.clearBtnText}>Wissen</Text>
+        <TouchableOpacity onPress={handleClearChat} style={s.clearBtn} activeOpacity={0.7}>
+          <Text style={s.clearBtnText}>Wissen</Text>
         </TouchableOpacity>
       </View>
 
@@ -159,17 +151,18 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.quickPrompts}
-        style={styles.quickPromptsRow}
+        contentContainerStyle={s.quickPrompts}
+        style={s.quickPromptsRow}
       >
         {QUICK_PROMPTS.map((prompt) => (
           <TouchableOpacity
             key={prompt}
-            style={[styles.quickPrompt, { borderColor: colors.acDim }]}
+            style={s.quickPrompt}
             onPress={() => sendMessage(prompt)}
             disabled={loading}
+            activeOpacity={0.7}
           >
-            <Text style={[styles.quickPromptText, { color: colors.ac }]}>{prompt}</Text>
+            <Text style={s.quickPromptText}>{prompt}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -180,7 +173,7 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
         data={chatMessages}
         keyExtractor={(item) => String(item.ts)}
         renderItem={renderMessage}
-        contentContainerStyle={styles.messages}
+        contentContainerStyle={s.messages}
         showsVerticalScrollIndicator={false}
         onContentSizeChange={() => {
           if (chatMessages.length > 0) {
@@ -188,20 +181,20 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
           }
         }}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>◎</Text>
-            <Text style={styles.emptyText}>
-              Hoi {profile?.name ?? 'soldaat'}.{'\n'}
-              Ik ben je persoonlijke coach.{'\n'}
-              Wat heb je op je hart?
+          <View style={s.empty}>
+            <Text style={s.emptyIcon}>✦</Text>
+            <Text style={s.emptyTitle}>Praat met je coach</Text>
+            <Text style={s.emptyText}>
+              Direct contact met je coach. Hij kent je verhaal, je schaduw, en wat je vandaag wel of
+              niet hebt gedaan.
             </Text>
           </View>
         }
         ListFooterComponent={
           loading ? (
-            <View style={styles.typing}>
-              <ActivityIndicator color={colors.ac} size="small" />
-              <Text style={[styles.typingText, { color: colors.muted }]}>Coach typt…</Text>
+            <View style={s.typing}>
+              <ActivityIndicator color={E.gold} size="small" />
+              <Text style={s.typingText}>Coach denkt na…</Text>
             </View>
           ) : null
         }
@@ -212,11 +205,11 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
       >
-        <View style={[styles.inputRow, { borderTopColor: 'rgba(255,255,255,0.06)' }]}>
+        <View style={s.inputRow}>
           <TextInput
-            style={styles.input}
-            placeholder="Bericht…"
-            placeholderTextColor="#4a5363"
+            style={s.input}
+            placeholder="Wat speelt er…"
+            placeholderTextColor={E.faint}
             value={input}
             onChangeText={setInput}
             multiline
@@ -224,14 +217,12 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
             returnKeyType="default"
           />
           <TouchableOpacity
-            style={[
-              styles.sendBtn,
-              { backgroundColor: input.trim() && !loading ? colors.ac : '#1a1e28' },
-            ]}
+            style={[s.sendBtn, { backgroundColor: input.trim() && !loading ? E.gold : E.s2 }]}
             onPress={() => sendMessage(input)}
             disabled={!input.trim() || loading}
+            activeOpacity={0.85}
           >
-            <Text style={[styles.sendBtnText, { color: input.trim() && !loading ? '#08090c' : '#4a5363' }]}>
+            <Text style={[s.sendBtnText, { color: input.trim() && !loading ? E.goldText : E.faint }]}>
               ↑
             </Text>
           </TouchableOpacity>
@@ -241,151 +232,202 @@ Je bent een persoonlijke discipline coach. Wees direct, eerlijk en motiverend. G
   );
 }
 
-function makeStyles(colors: ReturnType<typeof useTheme>) {
+function makeStyles(E: EvolveColors) {
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#08090c',
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingTop: 8,
-      paddingBottom: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: 'rgba(255,255,255,0.06)',
-    },
-    headerTitle: {
-      fontSize: 18,
-      fontWeight: '900',
-      color: '#f4f7fb',
-      letterSpacing: 3,
-    },
-    headerSub: {
-      color: '#4a5363',
-      fontSize: 12,
-      marginTop: 2,
-    },
-    clearBtn: {
-      padding: 8,
-    },
-    clearBtnText: {
-      color: '#4a5363',
-      fontSize: 13,
-    },
-    quickPromptsRow: {
-      flexGrow: 0,
-      borderBottomWidth: 1,
-      borderBottomColor: 'rgba(255,255,255,0.06)',
-    },
-    quickPrompts: {
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      gap: 8,
-    },
-    quickPrompt: {
-      borderRadius: 20,
-      borderWidth: 1,
-      paddingHorizontal: 14,
-      paddingVertical: 7,
-    },
-    quickPromptText: {
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    messages: {
-      paddingHorizontal: 16,
-      paddingTop: 16,
-      paddingBottom: 8,
-      flexGrow: 1,
-    },
-    bubble: {
-      maxWidth: '80%',
-      borderRadius: 14,
-      padding: 12,
-      marginBottom: 10,
-    },
-    userBubble: {
-      alignSelf: 'flex-end',
-      borderBottomRightRadius: 4,
-    },
-    aiBubble: {
-      alignSelf: 'flex-start',
-      borderBottomLeftRadius: 4,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.06)',
-    },
-    bubbleRole: {
-      fontSize: 9,
-      fontWeight: '700',
-      letterSpacing: 2,
-      marginBottom: 6,
-    },
-    bubbleText: {
-      color: '#f4f7fb',
-      fontSize: 14,
-      lineHeight: 21,
-    },
-    empty: {
-      alignItems: 'center',
-      paddingTop: 60,
-    },
-    emptyTitle: {
-      fontSize: 48,
-      color: '#1a1e28',
-      marginBottom: 16,
-    },
-    emptyText: {
-      color: '#4a5363',
-      fontSize: 14,
-      textAlign: 'center',
-      lineHeight: 22,
-    },
-    typing: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-      paddingVertical: 8,
-      paddingHorizontal: 4,
-    },
-    typingText: {
-      fontSize: 13,
-    },
-    inputRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      gap: 10,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      borderTopWidth: 1,
-    },
-    input: {
-      flex: 1,
-      backgroundColor: '#10131a',
-      borderRadius: 20,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-      color: '#f4f7fb',
-      fontSize: 15,
-      maxHeight: 120,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.06)',
-    },
-    sendBtn: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    sendBtnText: {
-      fontSize: 18,
-      fontWeight: '700',
-    },
-    muted: {
-      color: '#7a8395',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: E.bg,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 22,
+    paddingTop: 8,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: E.line,
+  },
+  headerTitle: {
+    fontFamily: F.display,
+    fontSize: 23,
+    color: E.ink,
+    letterSpacing: -0.4,
+  },
+  headerSparkle: {
+    color: E.gold,
+  },
+  headerSub: {
+    fontFamily: F.body,
+    color: E.dim,
+    fontSize: 12.5,
+    marginTop: 3,
+  },
+  clearBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: E.line2,
+  },
+  clearBtnText: {
+    fontFamily: F.mono,
+    color: E.dim,
+    fontSize: 11,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  quickPromptsRow: {
+    flexGrow: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: E.line,
+  },
+  quickPrompts: {
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    gap: 8,
+  },
+  quickPrompt: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: E.warmBorder,
+    backgroundColor: E.s1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  quickPromptText: {
+    fontFamily: F.bodyMed,
+    fontSize: 12.5,
+    color: E.gold2,
+  },
+  messages: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    flexGrow: 1,
+  },
+  bubble: {
+    maxWidth: '84%',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    marginBottom: 10,
+  },
+  userBubble: {
+    alignSelf: 'flex-end',
+    backgroundColor: E.gold,
+    borderBottomRightRadius: 4,
+  },
+  aiBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: E.s1,
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: E.line,
+  },
+  roleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  roleDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: E.gold,
+    shadowColor: E.gold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  bubbleRole: {
+    fontFamily: F.mono,
+    fontSize: 9,
+    color: E.gold,
+    letterSpacing: 2,
+  },
+  bubbleText: {
+    fontFamily: F.body,
+    color: E.ink,
+    fontSize: 14.5,
+    lineHeight: 22,
+  },
+  userBubbleText: {
+    fontFamily: F.bodyMed,
+    color: E.goldText,
+  },
+  empty: {
+    alignItems: 'center',
+    paddingTop: 70,
+    paddingHorizontal: 30,
+  },
+  emptyIcon: {
+    fontSize: 38,
+    color: E.gold,
+    opacity: 0.4,
+    marginBottom: 18,
+  },
+  emptyTitle: {
+    fontFamily: F.display,
+    fontSize: 17,
+    color: E.dim,
+    marginBottom: 10,
+  },
+  emptyText: {
+    fontFamily: F.body,
+    color: E.faint,
+    fontSize: 13.5,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  typing: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  typingText: {
+    fontFamily: F.body,
+    fontSize: 13,
+    fontStyle: 'italic',
+    color: E.dim,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: E.line,
+    backgroundColor: E.bg,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: E.s1,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    color: E.ink,
+    fontFamily: F.body,
+    fontSize: 15,
+    maxHeight: 120,
+    borderWidth: 1,
+    borderColor: E.line,
+  },
+  sendBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendBtnText: {
+    fontSize: 19,
+    fontWeight: '700',
+  },
   });
 }

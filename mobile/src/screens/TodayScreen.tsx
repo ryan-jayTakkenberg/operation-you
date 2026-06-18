@@ -23,7 +23,8 @@ import {
   avgCompliance,
 } from '../store/useStore';
 import { claudeCall, buildCoachContext } from '../api/claude';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
 
 // Sectie-volgorde + Evolve-presentatie. Werkt met de AI-gegenereerde section-keys;
 // onbekende keys vallen terug op een neutraal label onderaan.
@@ -84,6 +85,9 @@ export default function TodayScreen() {
 
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [closingDay, setClosingDay] = useState(false);
+
+  const E = useEvolve();
+  const s = makeStyles(E);
 
   const todayStr = today();
   const currentDay = dayNum(startDate);
@@ -304,7 +308,8 @@ export default function TodayScreen() {
   );
 }
 
-const s = StyleSheet.create({
+function makeStyles(E: EvolveColors) {
+  return StyleSheet.create({
   container: { flex: 1, backgroundColor: E.bg },
   scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
 
@@ -375,4 +380,5 @@ const s = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   closeBtnText: { fontFamily: F.display, fontSize: 16, color: E.goldText },
-});
+  });
+}

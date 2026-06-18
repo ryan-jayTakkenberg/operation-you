@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="css/onboarding.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/today.css">
+<link rel="stylesheet" href="css/journal.css">
 <link rel="stylesheet" href="css/journey.css">
 <link rel="stylesheet" href="css/whoop.css">
 <link rel="stylesheet" href="css/spiegel.css">
@@ -196,58 +197,87 @@
   <span id="brand-name"></span>
 </div>
 
-<!-- TODAY -->
+<!-- TODAY — Evolve layout (parity met mobile TodayScreen) -->
 <div class="page on" id="page-today">
-  <div class="scroll">
-    <!-- ZONE 1: OCHTEND -->
-    <div class="zone-block" id="zone-ochtend">
-      <div id="today-hero"></div>
-      <div class="day-quote">
-        <div class="dq-top">
-          <div class="dq-lbl"><span class="dq-dot"></span> Boodschap voor vandaag</div>
-          <button class="dq-refresh" id="dq-refresh-btn" onclick="refreshQuote()"><span class="dq-rot">↻</span> Nieuwe</button>
-        </div>
-        <div class="dq-txt dq-loading" id="day-quote">Laden…</div>
-        <div class="dq-signature" id="dq-signature"></div>
+  <div class="scroll today-scroll">
+    <!-- Header: dag-eyebrow + groet + streak-pill -->
+    <div id="today-header" class="t-header"></div>
+
+    <!-- Ring-kaart: voortgangsring + mini-stats -->
+    <div id="today-ring" class="t-ring-card"></div>
+
+    <!-- Casino-banner (web-feature) -->
+    <div id="casino-banner-wrap"></div>
+
+    <!-- Identiteit van vandaag (warm goud-verloop) -->
+    <div class="day-quote">
+      <div class="dq-top">
+        <div class="dq-lbl"><span class="dq-dot"></span> Identiteit van vandaag</div>
+        <button class="dq-refresh" id="dq-refresh-btn" onclick="refreshQuote()"><span class="dq-rot">↻</span> Nieuwe</button>
       </div>
-      <div class="day-insight-card" id="insight-card">
+      <div class="dq-txt dq-loading" id="day-quote">Laden…</div>
+      <div class="dq-signature" id="dq-signature"></div>
+    </div>
+
+    <!-- Secties met wetten -->
+    <div id="today-sections"></div>
+
+    <!-- Energie/mood (web-feature) -->
+    <div id="mood-strip-wrap"></div>
+
+    <!-- AI-inzicht -->
+    <div class="day-insight-card" id="insight-card">
+      <div class="di-badge"><span class="di-badge-dot"></span></div>
+      <div class="di-body">
         <div class="di-top">
-          <div class="di-lbl">Patroon-analyse</div>
+          <div class="di-lbl">AI-inzicht</div>
           <button class="dq-refresh di-refresh" id="di-refresh-btn" onclick="refreshInsight()"><span class="dq-rot">↻</span> Nieuw</button>
         </div>
         <div class="di-txt di-loading" id="day-insight">Laden…</div>
       </div>
-      <div id="rlist-ochtend"></div>
     </div>
-    <!-- ZONE 2: TUSSENDOOR -->
-    <div class="zone-block" id="zone-tussendoor">
-      <div class="zone-header">Tussendoor</div>
-      <div id="rlist-tussendoor"></div>
-      <div id="mood-strip-wrap"></div>
-    </div>
-    <!-- ZONE 3: AVOND -->
-    <div class="zone-block" id="zone-avond">
-      <div class="zone-header">Avond</div>
-      <div id="casino-banner-wrap"></div>
-      <div id="rlist-avond"></div>
-      <div class="fail-wrap">
-        <button class="fail-btn" onclick="failDay()">Dag mislukt — terug naar dag 1</button>
-      </div>
+
+    <!-- Dag afsluiten -->
+    <button class="t-close-btn" onclick="openModal()">Dag afsluiten</button>
+
+    <div class="fail-wrap">
+      <button class="fail-btn" onclick="failDay()">Dag mislukt — terug naar dag 1</button>
     </div>
   </div>
 </div>
 
-<!-- PLAN -->
-<div class="page" id="page-plan">
+<!-- VOORTGANG -->
+<div class="page" id="page-voortgang">
   <div class="scroll">
-    <div class="plan-header">
-      <div class="plan-header-title">◇ Jouw Plan</div>
-      <button class="journey-add" onclick="openModal(null)">+ Dag</button>
-    </div>
-    <div id="plan-why-card"></div>
+    <div id="voortgang-stats"></div>
     <div id="plan-phases"></div>
-    <div class="grid-wrap" style="margin:0 16px 16px">
+    <div id="plan-why-card"></div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="page" id="page-journal">
+  <div class="scroll">
+    <div id="journal-host"></div>
+  </div>
+</div>
+
+<!-- FOTOS -->
+<div class="page" id="page-fotos">
+  <div class="scroll">
+    <div class="journey-head">
+      <div class="journey-head-title">Foto's</div>
+      <div class="journey-head-sub">Je 75-daagse reis in beeld</div>
+    </div>
+    <div class="grid-wrap" style="margin:18px 16px 0">
       <div class="grid" id="grid75"></div>
+    </div>
+    <div class="journey-legend">
+      <div class="jl-item"><span class="jl-dot" style="background:var(--green)"></span>Compleet</div>
+      <div class="jl-item"><span class="jl-dot" style="background:var(--orange)"></span>Deels</div>
+      <div class="jl-item"><span class="jl-dot" style="background:var(--red)"></span>Gemist</div>
+      <div class="jl-item"><span class="jl-dot" style="background:var(--gold)"></span>Vandaag</div>
+      <div class="jl-item"><span class="jl-dot" style="background:var(--bg4)"></span>Toekomst</div>
     </div>
     <div style="display:none">
       <span id="j-name">OPERATION YOU</span>
@@ -257,12 +287,23 @@
   </div>
 </div>
 
-<!-- COACH -->
+<!-- COACH (bereikbaar via ✦-knop op Vandaag, geen eigen tab — parity met mobile) -->
 <div class="page" id="page-coach">
   <div class="coach-page-header">
-    <div class="coach-page-title">✦ Coach</div>
-    <div class="coach-page-sub">Persoonlijke AI — kent jouw verhaal</div>
+    <div class="coach-page-head-l" style="display:flex;align-items:center;gap:12px">
+      <button class="coach-back" onclick="go('today')" aria-label="Terug">←</button>
+      <div>
+        <div class="coach-page-title"><span>✦</span> Coach</div>
+        <div class="coach-page-sub">Persoonlijke AI — kent jouw verhaal</div>
+      </div>
+    </div>
     <button class="chat-clear" onclick="clearChat()">Wissen</button>
+  </div>
+  <div class="coach-quickbar">
+    <button class="coach-qp" onclick="sendQuickPrompt('Hoe gaat het met mijn voortgang?')">Hoe gaat het met mijn voortgang?</button>
+    <button class="coach-qp" onclick="sendQuickPrompt('Geef me een motiverende kick')">Geef me een motiverende kick</button>
+    <button class="coach-qp" onclick="sendQuickPrompt('Analyseer mijn zwaktes')">Analyseer mijn zwaktes</button>
+    <button class="coach-qp" onclick="sendQuickPrompt('Wat is mijn patroon deze week?')">Wat is mijn patroon deze week?</button>
   </div>
   <div class="chat-messages" id="chat-messages"></div>
   <div class="chat-input-wrap">
@@ -282,19 +323,16 @@
   <div class="bd-scroll" id="bd-scroll"></div>
 </div>
 
-<!-- ME (JIJ) -->
-<div class="page" id="page-me">
+<!-- PROFIEL (JIJ) -->
+<div class="page" id="page-profiel">
   <div class="me-scroll">
-    <div class="me-profile" id="me-profile-header"></div>
-    <div class="me-stats">
-      <div class="me-stat"><div class="me-stat-n" id="ss-day">1</div><div class="me-stat-l">Dag</div></div>
-      <div class="me-stat"><div class="me-stat-n" id="ss-done">0</div><div class="me-stat-l">Voltooid</div></div>
-      <div class="me-stat"><div class="me-stat-n" id="ss-str">0</div><div class="me-stat-l">Streak</div></div>
-      <div class="me-stat"><div class="me-stat-n" id="ss-rst">0</div><div class="me-stat-l">Herstarts</div></div>
+    <div class="me-avatar-row" id="me-profile-header"></div>
+    <div id="me-profile-top"></div>
+    <div id="me-profile-bottom"></div>
+    <div class="me-card">
+      <div class="me-card-eyebrow">Thema</div>
+      <div class="theme-grid" id="theme-grid"></div>
     </div>
-    <div class="grid75" id="g75"></div>
-    <div class="theme-grid" id="theme-grid"></div>
-    <div id="rule-analytics"></div>
     <div class="me-menu">
       <div class="me-item" onclick="openSettings()"><span class="me-item-icon">⚙</span><span class="me-item-label">Instellingen</span><span class="me-item-arrow">›</span></div>
       <div class="me-item" onclick="openSettings();setTimeout(()=>openSubpage('spiegel'),50)"><span class="me-item-icon">🪞</span><span class="me-item-label">Spiegel</span><span class="me-item-arrow">›</span></div>
@@ -564,12 +602,14 @@
 </div>
 
 <button class="fab fab-hidden" id="fab-btn" onclick="openQuickLog()">✦</button>
+<button class="coach-fab" id="coach-fab" onclick="go('coach')" aria-label="Coach">✦</button>
 
 <div class="bnav">
-  <div class="nbtn on" id="nb-today" onclick="go('today')"><div class="nicon">◉</div><div class="nlbl">Vandaag</div></div>
-  <div class="nbtn" id="nb-plan" onclick="go('plan')"><div class="nicon">◇</div><div class="nlbl">Plan</div></div>
-  <div class="nbtn" id="nb-coach" onclick="go('coach')"><div class="nicon">✦</div><div class="nlbl">Coach</div></div>
-  <div class="nbtn" id="nb-me" onclick="go('me')"><div class="nicon">◐</div><div class="nlbl">Jij</div></div>
+  <div class="nbtn on" id="nb-today" onclick="go('today')"><div class="nicon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5M6 10v9h12v-9"/></svg></div><div class="nlbl">Vandaag</div></div>
+  <div class="nbtn" id="nb-voortgang" onclick="go('voortgang')"><div class="nicon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 16l5-5 4 3 7-8"/></svg></div><div class="nlbl">Voortgang</div></div>
+  <div class="nbtn" id="nb-journal" onclick="go('journal')"><div class="nicon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 9h7M9 13h7M9 17h4"/></svg></div><div class="nlbl">Journal</div></div>
+  <div class="nbtn" id="nb-fotos" onclick="go('fotos')"><div class="nicon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2.5"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></div><div class="nlbl">Foto's</div></div>
+  <div class="nbtn" id="nb-profiel" onclick="go('profiel')"><div class="nicon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></div><div class="nlbl">Profiel</div></div>
 </div>
 </div>
 
@@ -599,6 +639,7 @@
 <script src="js/features/journey.js"></script>
 <script src="js/features/modal.js"></script>
 <script src="js/features/today.js"></script>
+<script src="js/features/journal.js"></script>
 <script src="js/features/coach.js"></script>
 <!-- 6. Screens / navigation -->
 <script src="js/screens/screens.js"></script>

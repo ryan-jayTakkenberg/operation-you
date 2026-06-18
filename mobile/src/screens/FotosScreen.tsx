@@ -19,7 +19,8 @@ import {
   dayNum,
   dateForDay,
 } from '../store/useStore';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { EVOLVE, EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
 
 const NL_MAANDEN = [
   'januari', 'februari', 'maart', 'april', 'mei', 'juni',
@@ -45,7 +46,7 @@ function dayForDate(startDate: string | null, dateStr: string): number | null {
 }
 
 // ── Iconen ────────────────────────────────────────────────────────────────
-function IconPlus({ size = 24, color = E.goldText }: { size?: number; color?: string }) {
+function IconPlus({ size = 24, color = EVOLVE.goldText }: { size?: number; color?: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d="M12 5v14M5 12h14" stroke={color} strokeWidth={2.4} strokeLinecap="round" />
@@ -53,7 +54,7 @@ function IconPlus({ size = 24, color = E.goldText }: { size?: number; color?: st
   );
 }
 
-function IconLock({ size = 14, color = E.green }: { size?: number; color?: string }) {
+function IconLock({ size = 14, color = EVOLVE.green }: { size?: number; color?: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -74,6 +75,8 @@ function IconLock({ size = 14, color = E.green }: { size?: number; color?: strin
 }
 
 export default function FotosScreen() {
+  const E = useEvolve();
+  const s = makeStyles(E);
   const entries = useStore((s) => s.entries);
   const startDate = useStore((s) => s.startDate);
   const updateEntry = useStore((s) => s.updateEntry);
@@ -275,7 +278,8 @@ export default function FotosScreen() {
 
 const TILE_GAP = 10;
 
-const s = StyleSheet.create({
+function makeStyles(E: EvolveColors) {
+  return StyleSheet.create({
   container: { flex: 1, backgroundColor: E.bg },
   scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
 
@@ -419,4 +423,5 @@ const s = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 4,
   },
-});
+  });
+}

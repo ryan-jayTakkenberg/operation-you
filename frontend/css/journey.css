@@ -215,3 +215,32 @@
 .lb-arrow:active{background:rgba(255,255,255,.08);}
 .lb-arrow-prev{left:8px;}
 .lb-arrow-next{right:8px;}
+
+/* ══════════════════════════════════════════════════════════
+   JOURNEY V14 — Evolve parity met mobile JourneyScreen
+   ══════════════════════════════════════════════════════════ */
+.journey-head{margin:6px 16px 0}
+.journey-head-title{font-family:var(--sans);font-weight:600;font-size:25px;color:var(--text);letter-spacing:-.4px}
+.journey-head-sub{font-family:var(--body-font);font-size:13.5px;color:var(--muted);margin-top:4px}
+
+/* 75-dagen grid — genummerde gekleurde cellen */
+.grid-wrap{padding:0}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.jcell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;background:var(--bg3);transition:transform .12s}
+.jcell:active{transform:scale(.94)}
+.jcell.future{background:var(--bg3)}
+.jcell.today{background:var(--gold)}
+.jcell.miss{background:var(--red)}
+.jcell.partial{background:var(--orange)}
+.jcell.full{background:var(--green)}
+.jcell-num{font-family:var(--mono);font-size:12px;font-weight:600;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums}
+.jcell.future .jcell-num{color:var(--dim)}
+.jcell.today .jcell-num{color:var(--bg)}
+.jcell.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.jcell.photo.is-today{outline:2px solid var(--gold);outline-offset:-2px}
+.jcell-num.onphoto{position:relative;z-index:1;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+
+/* Legenda */
+.journey-legend{display:flex;flex-wrap:wrap;gap:12px;margin:16px 16px 0}
+.jl-item{display:flex;align-items:center;gap:6px;font-family:var(--body-font);font-size:11.5px;color:var(--muted)}
+.jl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}

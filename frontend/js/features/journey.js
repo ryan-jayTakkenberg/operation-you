@@ -8,56 +8,37 @@ var _lbIdx=0;
 var _lbTouchX=null;
 
 function renderJourney(){
-  if(!document.getElementById('grid75')) return;
+  const host=document.getElementById('grid75');
+  if(!host) return;
   const rs=rules();
-  const done=Object.values(S.checks).filter(v=>rs.length>0 && rs.filter(r=>v[r.id]).length===rs.length).length;
-  const entries=S.entries.length;
-  const streak=calcStreak();
-  document.getElementById('profile-stats').innerHTML=`
-    <div class="pstat"><div class="pstat-n">${done}</div><div class="pstat-l">Voltooid</div></div>
-    <div class="pstat"><div class="pstat-n">${entries}</div><div class="pstat-l">Posts</div></div>
-    <div class="pstat"><div class="pstat-n">${streak}</div><div class="pstat-l">Streak</div></div>`;
-
-  const td=today();let h='';
-  const start=startDateObj();
+  const td=today();
+  let h='';
   for(let i=0;i<75;i++){
-    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate());
-    d.setDate(d.getDate()+i);
-    const k=localDate(d);
     const dayN=i+1;
+    const k=dateForDay(dayN);
     const c=S.checks[k]||{};
     const dn=rs.filter(r=>c[r.id]).length;
     const fail=S.fails.find(f=>f.date===k);
     const entry=entryForDate(k);
     const isTd=k===td;
-    const isPast=k<td&&!isTd;
-    let badgeCls='',badgeTxt='';
-    if(isTd){badgeCls='today';badgeTxt='VANDAAG';}
-    else if(fail){badgeCls='partial';badgeTxt='FAIL';}
-    else if(rs.length>0 && dn===rs.length){badgeCls='done';badgeTxt='✓';}
-    else if(dn>0&&isPast){badgeCls='partial';badgeTxt=dn+'/'+rs.length;}
-    else if(!entry&&!isPast&&!isTd){badgeCls='empty';badgeTxt='DAG '+dayN;}
+    const isPast=k<td;
+
+    // Kleur per dag — zelfde semantiek als mobile getDayColor
+    let cls='future';
+    if(isTd)cls='today';
+    else if(isPast&&rs.length){
+      if(fail||dn===0)cls='miss';
+      else if(dn<rs.length)cls='partial';
+      else cls='full';
+    }
 
     if(entry&&entry.photo){
-      h+=`<div class="grid-cell" onclick="openLightbox(${dayN})">
-        <img src="${entry.photo}" alt="">
-        <div class="grid-cell-overlay"><span class="grid-cell-badge ${badgeCls}">${badgeTxt}</span></div>
-      </div>`;
+      h+=`<div class="jcell photo${isTd?' is-today':''}" onclick="openLightbox(${dayN})"><img src="${entry.photo}" alt=""><span class="jcell-num onphoto">${dayN}</span></div>`;
     } else {
-      let bg='var(--bg3)',numColor='var(--dim)';
-      if(isTd){bg='rgba(234,88,12,0.10)';numColor='var(--ac)';}
-      else if(fail||isPast&&dn<rs.length){bg='rgba(var(--red-rgb),0.06)';}
-      else if(rs.length>0&&dn===rs.length){bg='rgba(234,88,12,0.08)';}
-      h+=`<div class="grid-cell" onclick="openDetail(${dayN})" style="background:${bg}">
-        <div class="grid-cell-empty">
-          <div class="grid-cell-num" style="color:${numColor}">${dayN}</div>
-          ${dn>0?`<div class="grid-cell-dot" style="background:${rs.length>0&&dn===rs.length?'var(--ac)':'var(--orange)'}"></div>`:''}
-        </div>
-        ${badgeTxt?`<div class="grid-cell-overlay"><span class="grid-cell-badge ${badgeCls}">${badgeTxt}</span></div>`:''}
-      </div>`;
+      h+=`<div class="jcell ${cls}" onclick="openDetail(${dayN})"><span class="jcell-num">${dayN}</span></div>`;
     }
   }
-  document.getElementById('grid75').innerHTML=h;
+  host.innerHTML=h;
 }
 
 // ─── LIGHTBOX ────────────────────────────────────────────────────────────────
@@ -211,11 +192,11 @@ function openDetail(dayN){
 
   h+=`<div class="detail-ai" id="detail-ai">`;
   if(entry&&entry.aiFb){
-    h+=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Claude — Dag ${dayN}</div></div><div class="ai-txt">${escapeHtml(entry.aiFb)}</div>`;
+    h+=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Coach — Dag ${dayN}</div></div><div class="ai-txt">${escapeHtml(entry.aiFb)}</div>`;
   } else if(entry){
-    h+=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Claude feedback</div></div><button class="get-fb" onclick="getFbForDay('${date}')">Vraag feedback voor dag ${dayN}</button>`;
+    h+=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Coach feedback</div></div><button class="get-fb" onclick="getFbForDay('${date}')">Vraag feedback voor dag ${dayN}</button>`;
   } else {
-    h+=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Claude feedback</div></div><div class="ai-txt" style="color:var(--dim)">Voeg eerst een entry toe voor AI feedback.</div>`;
+    h+=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Coach feedback</div></div><div class="ai-txt" style="color:var(--dim)">Voeg eerst een entry toe voor AI feedback.</div>`;
   }
   h+=`</div>`;
 
@@ -233,7 +214,7 @@ async function getFbForDay(date){
   const el=document.getElementById('detail-ai');
   if(!el||!entry)return;
   const dayN=entry.dayNum;
-  el.innerHTML=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Claude analyseert dag ${dayN}...</div></div><div class="ai-load">Even geduld...</div>`;
+  el.innerHTML=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Coach analyseert dag ${dayN}...</div></div><div class="ai-load">Even geduld...</div>`;
   const rs=rules();
   const ok=rs.filter(r=>entry.checks&&entry.checks[r.id]).map(r=>r.name);
   const miss=rs.filter(r=>!entry.checks||!entry.checks[r.id]).map(r=>r.name);
@@ -254,9 +235,9 @@ ${w.rec!==undefined?`Whoop: recovery ${w.rec}%, slaap ${w.slp||'?'}u, strain ${w
     const txt=data.content?.[0]?.text||'Kon niet laden.';
     const idx=S.entries.findIndex(e=>e.date===date);
     if(idx>=0){S.entries[idx].aiFb=txt;save();}
-    el.innerHTML=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Claude — Dag ${dayN}</div></div><div class="ai-txt">${escapeHtml(txt)}</div>`;
+    el.innerHTML=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Coach — Dag ${dayN}</div></div><div class="ai-txt">${escapeHtml(txt)}</div>`;
   }catch(e){
-    el.innerHTML=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Claude feedback</div></div><div style="color:var(--red);font-size:12px">Kon niet laden.</div><button class="ai-retry" onclick="getFbForDay('${date}')">Opnieuw</button>`;
+    el.innerHTML=`<div class="ai-top"><div class="ai-pulse"></div><div class="ai-lbl">Coach feedback</div></div><div style="color:var(--red);font-size:12px">Kon niet laden.</div><button class="ai-retry" onclick="getFbForDay('${date}')">Opnieuw</button>`;
   }
 }
 

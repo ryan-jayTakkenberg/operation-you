@@ -5,10 +5,12 @@ import { StatusBar } from 'expo-status-bar';
 import Svg, { Path } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store/useStore';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
 
 // Toggle-switch (44x26). Witte knop schuift van 0 (uit) naar 20 (aan).
-function Switch({ on, onPress }: { on: boolean; onPress: () => void }) {
+function Switch({ on, onPress, E }: { on: boolean; onPress: () => void; E: EvolveColors }) {
+  const s = makeStyles(E);
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -21,6 +23,8 @@ function Switch({ on, onPress }: { on: boolean; onPress: () => void }) {
 }
 
 export default function MeldingenScreen() {
+  const E = useEvolve();
+  const s = makeStyles(E);
   const navigation = useNavigation<any>();
   const notifs = useStore((s) => s.notifs);
   const toggleNotif = useStore((s) => s.toggleNotif);
@@ -66,7 +70,7 @@ export default function MeldingenScreen() {
                 <View style={[s.timePill, { backgroundColor: E.s2 }]}>
                   <Text style={[s.timeText, { color: on ? E.ink : E.faint }]}>{item.time}</Text>
                 </View>
-                <Switch on={on} onPress={() => toggleNotif(item.key)} />
+                <Switch on={on} onPress={() => toggleNotif(item.key)} E={E} />
               </View>
             );
           })}
@@ -76,8 +80,9 @@ export default function MeldingenScreen() {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: E.bg },
+function makeStyles(E: EvolveColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: E.bg },
   scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
 
   header: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingTop: 6 },
@@ -135,4 +140,5 @@ const s = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-});
+  });
+}

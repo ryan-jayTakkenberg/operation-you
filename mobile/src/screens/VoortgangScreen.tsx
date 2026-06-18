@@ -11,7 +11,8 @@ import {
   getRules,
   avgCompliance,
 } from '../store/useStore';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { EV_FONTS as F } from '../constants/theme';
+import { useEvolve, type EvolveColors } from '../hooks/useEvolve';
 
 // Sectie-volgorde + Evolve-presentatie (groepering op rule.section).
 const SECTION_META: Array<{ key: string; icon: string; label: string }> = [
@@ -92,10 +93,14 @@ function AreaChart({
   values,
   height,
   color,
+  E,
+  s,
 }: {
   values: number[];
   height: number;
   color: string;
+  E: EvolveColors;
+  s: ReturnType<typeof makeStyles>;
 }) {
   const coords = pointsToCoords(values);
   if (!coords.length) {
@@ -129,6 +134,8 @@ export default function VoortgangScreen() {
   const startDate = useStore((sel) => sel.startDate);
   const checks = useStore((sel) => sel.checks);
   const mood = useStore((sel) => sel.mood);
+  const E = useEvolve();
+  const s = makeStyles(E);
 
   const rules = getRules(identity);
   const elapsed = startDate ? dayNum(startDate) : 0;
@@ -243,7 +250,7 @@ export default function VoortgangScreen() {
             </Text>
           </View>
           <View style={s.chartWrap}>
-            <AreaChart values={completionSeries} height={100} color={E.gold} />
+            <AreaChart values={completionSeries} height={100} color={E.gold} E={E} s={s} />
           </View>
         </View>
 
@@ -295,7 +302,7 @@ export default function VoortgangScreen() {
             <Text style={[s.cardMeta, { color: E.faint }]}>2 weken</Text>
           </View>
           <View style={s.chartWrap}>
-            <AreaChart values={moodSeries} height={100} color={E.green} />
+            <AreaChart values={moodSeries} height={100} color={E.green} E={E} s={s} />
           </View>
         </View>
 
@@ -319,7 +326,8 @@ export default function VoortgangScreen() {
   );
 }
 
-const s = StyleSheet.create({
+function makeStyles(E: EvolveColors) {
+  return StyleSheet.create({
   container: { flex: 1, backgroundColor: E.bg },
   scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110 },
 
@@ -390,4 +398,5 @@ const s = StyleSheet.create({
   insightDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: E.gold },
   insightEyebrow: { fontFamily: F.mono, fontSize: 9.5, letterSpacing: 1.5, color: E.gold, marginBottom: 5 },
   insightText: { fontFamily: F.body, fontSize: 13.5, lineHeight: 20, color: E.ink },
-});
+  });
+}

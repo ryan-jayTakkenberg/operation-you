@@ -5,7 +5,8 @@ import VoortgangScreen from '../screens/VoortgangScreen';
 import JournalScreen from '../screens/JournalScreen';
 import FotosScreen from '../screens/FotosScreen';
 import ProfielScreen from '../screens/ProfielScreen';
-import { EVOLVE as E, EV_FONTS as F } from '../constants/theme';
+import { EV_FONTS as F } from '../constants/theme';
+import { useEvolve } from '../hooks/useEvolve';
 
 export type MainTabsParamList = {
   Vandaag: undefined;
@@ -53,6 +54,7 @@ function TabIcon({ name, color }: { name: IconName; color: string }) {
 }
 
 export default function MainTabs() {
+  const E = useEvolve();
   return (
     <Tab.Navigator
       screenOptions={{
